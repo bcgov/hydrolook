@@ -10,7 +10,8 @@ Encoding: UTF-8
 LazyData: true
 Imports:
    HYDAT,
-   dplyr
+   dplyr,
+   readr
 RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown

@@ -17,17 +17,20 @@
 check_stn_gap <- function(stations = "ALL", gap_thres = 60, num_gaps = 5) {
 
   ## Pull all the stations that are currently realtime
-  all_stations = HYDAT::RealTimeNetwork()
+  all_stations = readr::read_csv("http://dd.weather.gc.ca/hydrometric/doc/hydrometric_StationList.csv",
+                                 skip = 1, col_types = readr::cols(),
+                                 col_names= c("station_number", "STATION_NAME","LATITUDE", "LONGITUDE",
+                                              "PROV_TERR_STATE_LOC","TIMEZONE"))
 
   ## Find the subset that is BC
-  bcstations = all_stations[all_stations$prov_terr_loc == "BC", ]
+  bcstations = all_stations[all_stations$PROV_TERR_STATE_LOC == "BC", ]
   ## Error stations TODO: A better way to handle this
   #bcstations = bcstations[!bcstations$station_number == "07FD004", ]
 
   ##Which stations should perform the test on?
   if (stations == "ALL") {
     loop_stations = bcstations$station_number
-    #loop_stations = c("07EA005","07FD004")
+    #loop_stations = c("07EA005","07FD004","10BE001","08LG067")
   } else {
     loop_stations = stations
   }
@@ -41,7 +44,7 @@ check_stn_gap <- function(stations = "ALL", gap_thres = 60, num_gaps = 5) {
   ## Loop  to find
   df <- c()
   for (i in 1:length(loop_stations)) {
-    #cat(paste0("Checking station: ", i, "\n"))
+    #cat(paste0("Checking station: ", loop_stations[i], "\n"))
 
     rtdata = tryCatch(
       HYDAT::RealTimeData(station_number = loop_stations[i], prov_terr_loc = "BC"),
@@ -54,14 +57,14 @@ check_stn_gap <- function(stations = "ALL", gap_thres = 60, num_gaps = 5) {
       interval = diff(rtdata$date_time)
 
       ########################################################################
-      # Criteria 1: Does this station have any data gaps larger than 1 hour? #
+      # Criteria1: Does this station have any data gaps larger than "gap_thres?" #
       ########################################################################
       Criteria1 = length(which(interval > gap_thres)) > 0
 
       ##################################################################
-      # Are there more than five gaps that are longer than 2o minutes? #
+      # Criteria2: Are there more than "num_gaps" gaps that are longer than 2o minutes? #
       ##################################################################
-      # Criteria 2: How frequent are the gaps? Is the station frequently cutting out?
+      #  How frequent are the gaps? Is the station frequently cutting out?
       ##The most common values in a dataframe?
       intermittent_df = as.data.frame(table(as.numeric(interval)), stringsAsFactors = FALSE)
       ## Need to change Var1 to a number
@@ -71,7 +74,7 @@ check_stn_gap <- function(stations = "ALL", gap_thres = 60, num_gaps = 5) {
 
 
 
-
+      ## Use the criteria to make a sensible dataframe
       if (Criteria1 == TRUE |  Criteria2 == TRUE) {
         ## Criteria column outputs which criteria was meet individually
         u = data.frame(
@@ -81,7 +84,14 @@ check_stn_gap <- function(stations = "ALL", gap_thres = 60, num_gaps = 5) {
           Criteria2 = ifelse(Criteria2 == TRUE, "TRUE", "FALSE")
         )
         #df = rbind(u, df)
+      } else {
+        u = data.frame(
+          station_number = loop_stations[i],
+          Status = "in datamart",
+          Criteria1 = "FALSE",
+          Criteria2 = "FALSE")
       }
+
     } else { ## If there is no status column that means there was error - output error
       u = data.frame(
         station_number = loop_stations[i],
@@ -102,8 +112,8 @@ check_stn_gap <- function(stations = "ALL", gap_thres = 60, num_gaps = 5) {
   if (!is.null(df)) {
     df$station_number = as.character(df$station_number)
     df = dplyr::right_join(bcstations, df, by = c("station_number"))
-    df$timezone <- NULL ## don't need the timezone column
-    df$prov_terr_loc <- NULL ## don't need the prov_terr_loc column
+    df$TIMEZONE <- NULL ## don't need the timezone column
+    df$PROV_TERR_STATE_LOC <- NULL ## don't need the prov_terr_loc column
     return(df)
   } else {
     cat(paste0("Either no interval greater than ", gap_thres, " minutes or \n not more than ", num_gaps, " 20 minutes gaps"))
