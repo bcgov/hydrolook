@@ -2,7 +2,10 @@
 title: "BC Fed-Prov Hydrometric Network Diagnostic"
 author: "Sam Albers"
 date: "Generated on: `r Sys.Date()` "
-output: rmarkdown::html_vignette
+output:
+  knitr:::html_vignette:
+    toc: true
+    fig_caption: yes
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
@@ -10,6 +13,9 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
+
+#rmarkdown::render("vignettes/Net_diag.Rmd",  "all")
+
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, messages = FALSE, fig.width = 8, fig.height = 12)
 
 library(tidyverse)
@@ -143,7 +149,8 @@ all_real %>%
   geom_point(size = 1) +
   facet_wrap(~station_number, scales = "free_y") +
   theme_minimal() +
-    labs(x = "Date", y = "Stage Height (m)")
+  labs(x = "Date", y = "Stage Height (m)") +
+  scale_x_datetime(date_breaks = "2 week", date_labels = "%b %d")
 }
 ```
 
@@ -157,7 +164,8 @@ all_real %>%
   geom_point(size = 1) +
   facet_wrap(~station_number, scales = "free_y") +
   theme_minimal() +
-  labs(x = "Date", y = "Discharge (m^3/s)")
+  labs(x = "Date", y = "Discharge (m^3/s)") +
+  scale_x_datetime(date_breaks = "2 week", date_labels = "%b %d")
 }
 ```
 
@@ -197,7 +205,7 @@ if (nrow(fdg) != 0){
     coord_sf(crs = st_crs(3005)) +
     theme_minimal() +
     theme(legend.position = "bottom") +
-    labs(x = "Longitude", y = "Latitude", caption = "Sub-divisions represent BC hydrologic zones")
+    labs(x = "Longitude", y = "Latitude", caption = "Sub-divisions represent BC hydrologic zones") 
 }
 ```
 
@@ -220,7 +228,8 @@ if (nrow(fdg) != 0){
     geom_point(size = 1) +
     facet_wrap(~station_number, scales = "free_y") +
     theme_minimal() +
-    labs(x = "Date", y = "Stage Height (m)")
+    labs(x = "Date", y = "Stage Height (m)") +
+    scale_x_datetime(date_breaks = "2 week", date_labels = "%b %d")
 }
 ```
 
@@ -234,6 +243,7 @@ if (nrow(fdg) != 0){
     geom_point(size = 1) +
     facet_wrap(~station_number, scales = "free_y") +
     theme_minimal() +
-    labs(x = "Date", y = "Discharge (m^3/s)")
+    labs(x = "Date", y = "Discharge (m^3/s)") +
+    scale_x_datetime(date_breaks = "2 week", date_labels = "%b %d")
 }
 ```

@@ -30,7 +30,7 @@ check_stn_gap <- function(stations = "ALL", gap_thres = 60, num_gaps = 5) {
   ##Which stations should perform the test on?
   if (stations == "ALL") {
     loop_stations = bcstations$station_number
-    #loop_stations = c("07EA005","07FD004","10BE001","08LG067")
+    #loop_stations = c("07EA005","07FD004","10BE001","08LG067","08NN023", "10BE009")
   } else {
     loop_stations = stations
   }
