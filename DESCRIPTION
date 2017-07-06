@@ -3,7 +3,7 @@ Title: Provides a series of utilities that enhance the HYDAT package
 Version: 0.0.1
 Authors@R: c(person("Sam", "Albers", email = "sam.albers@gov.bc.ca", role = c("aut","cre")),
   person("Province of British Columbia", role="cph"))
-Description: What the package does (one paragraph).
+Description: A series of utilities that aid to generate a diagnostic report of the real-time WSC network
 Depends: R (>= 3.4.0)
 License: file LICENSE
 Encoding: UTF-8
@@ -11,8 +11,8 @@ LazyData: true
 Imports:
    HYDAT,
    dplyr,
+   rmarkdown,
    readr
 RoxygenNote: 6.0.1
-Suggests: knitr,
-    rmarkdown
+Suggests: knitr
 VignetteBuilder: knitr

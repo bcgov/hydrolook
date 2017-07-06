@@ -2,3 +2,4 @@
 
 export(bind_realtime)
 export(check_stn_gap)
+export(generate_report)
