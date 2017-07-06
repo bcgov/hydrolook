@@ -20,6 +20,7 @@ A dataframe containing all the stations (and associated spatial information) tha
 Check all realtime hydrometric stations in the Federal-Provincial network that exceed a user supplied time gap in records (defaults to the 60 minutes).
 }
 \examples{
+library(HYDATaddons)
 check_stn_gap(stations = "07EC003")
 
 check_stn_gap(stations = "07EC003", gap_thres = 300)
