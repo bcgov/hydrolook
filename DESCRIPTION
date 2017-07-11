@@ -14,5 +14,7 @@ Imports:
    rmarkdown,
    readr
 RoxygenNote: 6.0.1
-Suggests: knitr
+Suggests: 
+   knitr,
+   ggplot2
 VignetteBuilder: knitr
