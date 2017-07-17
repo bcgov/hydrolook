@@ -1,8 +1,45 @@
+# Copyright 2017 Province of British Columbia
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and limitations under the License.
+
+
 #' @title Check real time lag of realtime stations
 #' @export
 #'
+#' @param STATION_NUMBER Station numbers to look at. Leave blank if all provincial stations are desired.
+#' Currently you can't mix stations from two difference jurisdictions. See examples.
+#' @param PROV_TERR_STATE_LOC Province, state or territory. Defaults to "BC". Will not accept ALL.
+#' @param data_interval Examine hourly or daily data? Defaults to hourly
+#'
+#' @return
+#' \itemize{
+#' \item STATION NUMBER Water Survey of Canada station number
+#' \item time_obs Date and time of most recent observation from that station
+#' \item time_mod Date and time of data file upload to datamart
+#' \item time_lag Time difference (in hours) between \code{time_mod} and \code{time_obs}. This value represents
+#' the time delay for the network from data acquisition to data upload.
+#' }
+#'
 #' @examples
-#' rl_alg <- check_realtime_lag(stations = "ALL")
+#' check_realtime_lag(STATION_NUMBER = "08NL071")
+#'
+#' ## This will throw an error
+#' \dontrun{
+#' check_realtime_lag(STATION_NUMBER = c("08NL071","05QB002"))
+#' }
+#'
+#' ## To check all stations in Alberta:
+#' check_realtime_lag(PROV_TERR_STATE_LOC = "BC")
+#'
+#' @return
 #'
 #' rl_lag %>%
 #'  filter(Lag < 10) %>%
@@ -20,64 +57,158 @@
 ## There is a bug here. Need to code so that if Lag is greater 20, go back a re-run the loop
 ## I think while() is what we want here
 ## Though I think this might have something to do with the hourly versus daily in HYDAT::RealTimeData
-check_realtime_lag <- function(stations = "ALL") {
+check_realtime_lag <- function(STATION_NUMBER = "ALL", PROV_TERR_STATE_LOC = "BC", data_interval = "hourly") {
+  prov = PROV_TERR_STATE_LOC
 
-  ## Pull all the stations that are currently realtime
-  all_stations = readr::read_csv("http://dd.weather.gc.ca/hydrometric/doc/hydrometric_StationList.csv",
-                                 skip = 1, col_types = readr::cols(),
-                                 col_names= c("station_number", "STATION_NAME","LATITUDE", "LONGITUDE",
-                                              "PROV_TERR_STATE_LOC","TIMEZONE"))
+  if(prov == "ALL") {message("ALL is not valid input. Please select individual jurisdictions")}
 
-  ## Find the subset that is BC
-  bcstations = all_stations[all_stations$PROV_TERR_STATE_LOC == "BC", ]
+  if(STATION_NUMBER[1] == "ALL") {
+  ## Download province stations that are real time
+  full_net <- tidyhydat::download_network(PROV_TERR_STATE_LOC = prov)
 
-  ##Which stations should perform the test on?
-  if (stations == "ALL") {
-    loop_stations = bcstations$station_number
-    #loop_stations = c("07EA005","07FD004","10BE001","08LG067","08NN023", "10BE009")
-  } else {
-    loop_stations = stations
+  ## Add them to the loop
+  stns = full_net[full_net$PROV_TERR_STATE_LOC == prov,]$STATION_NUMBER
+  } else{
+    stns = STATION_NUMBER
   }
 
-  ## Loop  to find
-  df <- c()
-  for (i in 1:length(loop_stations)) {
-    #cat(paste0("Checking station: ", loop_stations[i], "\n"))
+  lag_c <- c()
 
-    rtdata = tryCatch(
-      HYDAT::RealTimeData(station_number = loop_stations[i], prov_terr_loc = "BC"),
-      error = function(e)
-        data.frame(Status = e$message)
-    )
+  # Define column names as the same as HYDAT
+  colHeaders <- c("STATION_NUMBER", "date_time", "LEVEL", "LEVEL_GRADE", "LEVEL_SYMBOL", "LEVEL_CODE",
+                  "FLOW", "FLOW_GRADE", "FLOW_SYMBOL", "FLOW_CODE")
 
-    ## Is there a status column?
-    if (is.null(rtdata$Status) == TRUE) {
-        rtdata = dplyr::filter(rtdata, date_time == max(date_time, na.rm = TRUE))
-        #stn_time = rtdata$date_time
-        rtdata = dplyr::mutate(rtdata, Lag = lubridate::with_tz(Sys.time(), "UTC") - date_time)
-        rtdata = dplyr::mutate(rtdata, Lag = as.numeric(Lag))
-        #Lag_ind = rtdata$Lag
-        cat(paste0(rtdata$Lag, " ",rtdata$station_number, "\n"))
-        #stopifnot(Lag_ind < 30)
-        rtdata = dplyr::mutate(rtdata, Status = "in datamart")
-        rtdata = dplyr::select(rtdata, station_number, Lag, Status)
-        u = rtdata
+  for (i in 1:length(stns) ){
+    cat(paste0("Station:",stns[i],"\n"))
+    STATION_NUMBER_SEL = stns[i]
 
-        #dbreturn <- u$Lag
-    } else { ## If there is no status column that means there was error - output error
-      u = data.frame(
-        station_number = loop_stations[i],
-        Lag = NA,
-        Status = "url not located; check datamart"
-      )
-      #df = rbind(u, df)
+    ### Date Modified
+    base_url = "http://dd.weather.gc.ca/hydrometric"
+    ## Currently only implemented for BC
+
+    # build URL
+
+    url <- sprintf("%s/csv/%s/%s", base_url, PROV_TERR_STATE_LOC, data_interval)
+    infile <- sprintf("%s/%s_%s_%s_hydrometric.csv", url, PROV_TERR_STATE_LOC, STATION_NUMBER_SEL, data_interval)
+
+    # download file and check for date modified
+    fn <- "temp.csv"
+    h <- try(download.file(infile[1],fn, quiet = TRUE))
+
+    if(class(h)=="try-error") {
+      time_mod = NA
+    } else{
+      time_mod = file.info(fn)$mtime
+      file.remove(fn)
+      #
     }
-    df = rbind(u, df)
 
-    rm("rtdata")
+    ### what is the most recent observation?
+    if (class(h) == "try-error") {
+      time_obs = NA
+    } else{
+      rl <- readr::read_csv(infile[1], skip = 1, col_names = colHeaders, col_types = readr::cols(STATION_NUMBER = readr::col_character(),
+                                                                                                 date_time = readr::col_datetime(),
+                                                                                                 LEVEL = readr::col_double(),
+                                                                                                 LEVEL_GRADE = readr::col_character(),
+                                                                                                 LEVEL_CODE = readr::col_integer(),
+                                                                                                 FLOW = readr::col_double(),
+                                                                                                 FLOW_GRADE = readr::col_character(),
+                                                                                                 FLOW_SYMBOL = readr::col_character(),
+                                                                                                 FLOW_CODE = readr::col_integer())
+      )
+      time_obs <- max(rl$date_time)
+    }
+
+    #close(rl)
+    #close(h)
+
+    ### Pull everything together
+    lag <- tibble::tibble(
+      STATION_NUMBER = STATION_NUMBER_SEL,
+      time_obs = time_obs,
+      time_mod = time_mod
+    )
+    #if (class(h) == "try-error") {
+    #  lag$Lag = NA
+    #} else{
+    #  lag$Lag <- as.numeric(difftime(lag$time_mod,lag$time_obs))
+    #}
+
+
+    lag_c = dplyr::bind_rows(lag, lag_c)
+
 
   }
+  lag_c$time_lag = difftime(lag_c$time_mod,lag_c$time_obs)
+  lag_c$time_lag_num = as.numeric(lag_c$time_lag)
 
-return(df)
+  return(lag_c)
 }
 
+
+
+
+
+#check_realtime_lag <- function(stations = "ALL") {
+#
+#  ## Pull all the stations that are currently realtime
+#  all_stations = readr::read_csv("http://dd.weather.gc.ca/hydrometric/doc/hydrometric_StationList.csv",
+#                                 skip = 1, col_types = readr::cols(),
+#                                 col_names= c("station_number", "STATION_NAME","LATITUDE", "LONGITUDE",
+#                                              "PROV_TERR_STATE_LOC","TIMEZONE"))
+#
+#  ## Find the subset that is BC
+#  bcstations = all_stations[all_stations$PROV_TERR_STATE_LOC == "BC", ]
+#
+#  ##Which stations should perform the test on?
+#  if (stations == "ALL") {
+#    loop_stations = bcstations$station_number
+#    #loop_stations = c("07EA005","07FD004","10BE001","08LG067","08NN023", "10BE009")
+#  } else {
+#    loop_stations = stations
+#  }
+#
+#  ## Loop  to find
+#  df <- c()
+#  for (i in 1:length(loop_stations)) {
+#    #cat(paste0("Checking station: ", loop_stations[i], "\n"))
+#
+#    rtdata = tryCatch(
+#      HYDAT::RealTimeData(station_number = loop_stations[i], prov_terr_loc = "BC"),
+#      error = function(e)
+#        data.frame(Status = e$message)
+#    )
+#
+#    ## Is there a status column?
+#    if (is.null(rtdata$Status) == TRUE) {
+#        rtdata = dplyr::filter(rtdata, date_time == max(date_time, na.rm = TRUE))
+#        #stn_time = rtdata$date_time
+#        rtdata = dplyr::mutate(rtdata, Lag = lubridate::with_tz(Sys.time(), "UTC") - date_time)
+#        rtdata = dplyr::mutate(rtdata, Lag = as.numeric(Lag))
+#        #Lag_ind = rtdata$Lag
+#        cat(paste0(rtdata$Lag, " ",rtdata$station_number, "\n"))
+#        #stopifnot(Lag_ind < 30)
+#        rtdata = dplyr::mutate(rtdata, Status = "in datamart")
+#        rtdata = dplyr::select(rtdata, station_number, Lag, Status)
+#        u = rtdata
+#
+#        #dbreturn <- u$Lag
+#    } else { ## If there is no status column that means there was error - output error
+#      u = data.frame(
+#        station_number = loop_stations[i],
+#        Lag = NA,
+#        Status = "url not located; check datamart"
+#      )
+#      #df = rbind(u, df)
+#    }
+#    df = rbind(u, df)
+#
+#    rm("rtdata")
+#
+#  }
+#
+#return(df)
+#}
+#
+#

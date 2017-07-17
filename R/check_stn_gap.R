@@ -31,10 +31,7 @@
 check_stn_gap <- function(stations = "ALL", gap_thres = 60, num_gaps = 5) {
 
   ## Pull all the stations that are currently realtime
-  all_stations = readr::read_csv("http://dd.weather.gc.ca/hydrometric/doc/hydrometric_StationList.csv",
-                                 skip = 1, col_types = readr::cols(),
-                                 col_names= c("station_number", "STATION_NAME","LATITUDE", "LONGITUDE",
-                                              "PROV_TERR_STATE_LOC","TIMEZONE"))
+  all_stations = tidyhydat::download_network(PROV_TERR_STATE_LOC = "ALL")
 
   ## Find the subset that is BC
   bcstations = all_stations[all_stations$PROV_TERR_STATE_LOC == "BC", ]
@@ -43,7 +40,7 @@ check_stn_gap <- function(stations = "ALL", gap_thres = 60, num_gaps = 5) {
 
   ##Which stations should perform the test on?
   if (stations == "ALL") {
-    loop_stations = bcstations$station_number
+    loop_stations = bcstations$STATION_NUMBER
     #loop_stations = c("07EA005","07FD004","10BE001","08LG067","08NN023", "10BE009")
   } else {
     loop_stations = stations
@@ -61,7 +58,8 @@ check_stn_gap <- function(stations = "ALL", gap_thres = 60, num_gaps = 5) {
     #cat(paste0("Checking station: ", loop_stations[i], "\n"))
 
     rtdata = tryCatch(
-      HYDAT::RealTimeData(station_number = loop_stations[i], prov_terr_loc = "BC"),
+      #HYDAT::RealTimeData(station_number = loop_stations[i], prov_terr_loc = "BC"),
+      tidyhydat::download_realtime(STATION_NUMBER = loop_stations[i], PROV_TERR_STATE_LOC = "BC"),
       error = function(e)
         data.frame(Status = e$message)
     )
@@ -92,7 +90,7 @@ check_stn_gap <- function(stations = "ALL", gap_thres = 60, num_gaps = 5) {
       if (Criteria1 == TRUE |  Criteria2 == TRUE) {
         ## Criteria column outputs which criteria was meet individually
         u = data.frame(
-          station_number = loop_stations[i],
+          STATION_NUMBER = loop_stations[i],
           Status = "in datamart",
           Criteria1 = ifelse(Criteria1 == TRUE, "TRUE", "FALSE"),
           Criteria2 = ifelse(Criteria2 == TRUE, "TRUE", "FALSE")
@@ -100,7 +98,7 @@ check_stn_gap <- function(stations = "ALL", gap_thres = 60, num_gaps = 5) {
         #df = rbind(u, df)
       } else {
         u = data.frame(
-          station_number = loop_stations[i],
+          STATION_NUMBER = loop_stations[i],
           Status = "in datamart",
           Criteria1 = "FALSE",
           Criteria2 = "FALSE")
@@ -108,7 +106,7 @@ check_stn_gap <- function(stations = "ALL", gap_thres = 60, num_gaps = 5) {
 
     } else { ## If there is no status column that means there was error - output error
       u = data.frame(
-        station_number = loop_stations[i],
+        STATION_NUMBER = loop_stations[i],
         Status = "url not located; check datamart",
         Criteria1 = NA,
         Criteria2 = NA
@@ -124,8 +122,8 @@ check_stn_gap <- function(stations = "ALL", gap_thres = 60, num_gaps = 5) {
   ## Check if any stations met the criteria?
   ## If so join with original bcstations dataframe for a nice output
   if (!is.null(df)) {
-    df$station_number = as.character(df$station_number)
-    df = dplyr::right_join(bcstations, df, by = c("station_number"))
+    df$STATION_NUMBER = as.character(df$STATION_NUMBER)
+    df = dplyr::right_join(bcstations, df, by = c("STATION_NUMBER"))
     df$TIMEZONE <- NULL ## don't need the timezone column
     df$PROV_TERR_STATE_LOC <- NULL ## don't need the prov_terr_loc column
     return(df)
