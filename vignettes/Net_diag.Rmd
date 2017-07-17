@@ -28,8 +28,8 @@ vignette: >
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, messages = FALSE, fig.width = 8, fig.height = 12)
 
 library(tidyverse)
-library(HYDAT)
-library(HYDATaddons)
+library(tidyhydat)
+library(hydrolook)
 library(sf)
 library(ggplot2)
 
@@ -37,10 +37,8 @@ library(ggplot2)
 station_number <- "ALL"
 
 ## Change to sf
-bc_bound_sf <- st_as_sf(bcmaps::bc_bound_hres) %>%
-  st_transform(crs = 4326)
+bc_bound_sf <- st_as_sf(bcmaps::bc_bound_hres)
 hydrozones_sf <- st_as_sf(bcmaps::hydrozones) %>%
-  st_transform(crs = 4326) %>%
   select(HYDZN_NAME)
 
 ```
@@ -73,6 +71,7 @@ gaps <- check_stn_gap(stations = station_number, gap_thres = gap_threshold, num_
   do(st_as_sf(., coords = c("LONGITUDE", "LATITUDE"), 
               crs = 4326, 
               agr = "constant")) %>%
+  st_transform(crs = 3005) %>%
   st_join(., hydrozones_sf)
 ```
 
@@ -93,7 +92,7 @@ The following stations are listed on the [hydrometric station list](http://dd.we
 ```{r}
 no_datamart = gaps %>%
   st_set_geometry(., NULL) %>%
-  select(station_number, STATION_NAME, Status, HYDZN_NAME) %>%
+  select(STATION_NUMBER, STATION_NAME, Status, HYDZN_NAME) %>%
   filter(!Status == "in datamart")
 
 knitr::kable(no_datamart)
@@ -130,7 +129,7 @@ if (nrow(ldg) != 0){
     geom_sf() +
     geom_sf(data = bc_bound_sf, alpha = 0.5) +
     geom_sf(data = filter(gaps, Criteria1 == TRUE), 
-            aes(colour = station_number, fill = station_number)) +
+            aes(colour = STATION_NUMBER, fill = STATION_NUMBER)) +
     coord_fixed() +
     coord_sf(crs = st_crs(3005)) +
     theme_minimal() +
@@ -142,10 +141,11 @@ if (nrow(ldg) != 0){
 ## Figure
 ```{r realdata_ldg}
 if (nrow(ldg) != 0){
-  all_real <- bind_realtime(stations = ldg$station_number) 
-} #else {
-  #all_real <- bind_realtime(stations = station_number)
-#}
+  all_real <- download_realtime(STATION_NUMBER = ldg$STATION_NUMBER)
+  #all_real <- bind_realtime(stations = ldg$station_number) 
+} else {
+  all_real <- download_realtime(STATION_NUMBER = STATION_NUMBER)
+}
 ```
 
 ### Stage Height
@@ -153,10 +153,10 @@ if (nrow(ldg) != 0){
 if (nrow(ldg) != 0){
 # generate the groups automatically and plot
 all_real %>%
-  ggplot(aes(x = date_time, y = hg)) +
+  ggplot(aes(x = date_time, y = LEVEL)) +
   geom_line() +
   geom_point(size = 1) +
-  facet_wrap(~station_number, scales = "free_y") +
+  facet_wrap(~STATION_NUMBER, scales = "free_y") +
   theme_minimal() +
   labs(x = "Date", y = "Stage Height (m)") +
   scale_x_datetime(date_breaks = "2 week", date_labels = "%b %d")
@@ -168,10 +168,10 @@ all_real %>%
 if (nrow(ldg) != 0){
 # generate the groups automatically and plot
 all_real %>%
-  ggplot(aes(x = date_time, y = qr)) +
+  ggplot(aes(x = date_time, y = FLOW)) +
   geom_line() +
   geom_point(size = 1) +
-  facet_wrap(~station_number, scales = "free_y") +
+  facet_wrap(~STATION_NUMBER, scales = "free_y") +
   theme_minimal() +
   labs(x = "Date", y = "Discharge (m^3/s)") +
   scale_x_datetime(date_breaks = "2 week", date_labels = "%b %d")
@@ -209,7 +209,7 @@ if (nrow(fdg) != 0){
     geom_sf() +
     geom_sf(data = bc_bound_sf, alpha = 0.5) +
     geom_sf(data = filter(gaps, Criteria2 == TRUE), 
-            aes(colour = station_number, fill = station_number)) +
+            aes(colour = STATION_NUMBER, fill = STATION_NUMBER)) +
     coord_fixed() +
     coord_sf(crs = st_crs(3005)) +
     theme_minimal() +
@@ -221,10 +221,10 @@ if (nrow(fdg) != 0){
 ## Figure
 ```{r realdata_fdg}
 if (nrow(fdg) != 0){
-  all_real <- bind_realtime(stations = fdg$station_number) 
-} #else {
-#all_real <- bind_realtime(stations = station_number)
-#}
+  all_real <- download_realtime(STATION_NUMBER = fdg$STATION_NUMBER)
+} else {
+all_real <- download_realtime(STATION_NUMBER = STATION_NUMBER)
+}
 ```
 
 ### Stage Height
@@ -232,10 +232,10 @@ if (nrow(fdg) != 0){
 if (nrow(fdg) != 0){
   # generate the groups automatically and plot
   all_real %>%
-    ggplot(aes(x = date_time, y = hg)) +
+    ggplot(aes(x = date_time, y = LEVEL)) +
     geom_line() +
     geom_point(size = 1) +
-    facet_wrap(~station_number, scales = "free_y") +
+    facet_wrap(~STATION_NUMBER, scales = "free_y") +
     theme_minimal() +
     labs(x = "Date", y = "Stage Height (m)") +
     scale_x_datetime(date_breaks = "2 week", date_labels = "%b %d")
@@ -247,10 +247,10 @@ if (nrow(fdg) != 0){
 if (nrow(fdg) != 0){
   # generate the groups automatically and plot
   all_real %>%
-    ggplot(aes(x = date_time, y = qr)) +
+    ggplot(aes(x = date_time, y = FLOW)) +
     geom_line() +
     geom_point(size = 1) +
-    facet_wrap(~station_number, scales = "free_y") +
+    facet_wrap(~STATION_NUMBER, scales = "free_y") +
     theme_minimal() +
     labs(x = "Date", y = "Discharge (m^3/s)") +
     scale_x_datetime(date_breaks = "2 week", date_labels = "%b %d")
