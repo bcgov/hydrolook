@@ -1,5 +1,5 @@
-Package: HYDATaddons
-Title: Provides a series of utilities that enhance the HYDAT package
+Package: hydrolook
+Title: Provides a series of utilities that build off the tidyhydat package
 Version: 0.0.1
 Authors@R: c(person("Sam", "Albers", email = "sam.albers@gov.bc.ca", role = c("aut","cre")),
   person("Province of British Columbia", role="cph"))
@@ -9,7 +9,7 @@ License: file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
-   HYDAT,
+   tidyhydat,
    dplyr,
    rmarkdown,
    readr
