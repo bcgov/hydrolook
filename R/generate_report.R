@@ -15,13 +15,24 @@
 #'
 #' @title Generate diagnostic report
 #'
+#' @param report_name Report to generate. Options:
+#' \itemize{
+#' \item Net_diag
+#' \item Realtime_lag
+#' }
+#'
 #' @description run this command to render the Net_diag report. The reports are then outputted to the report folder
+#'
+#' @examples
+#' \dontrun{
+#' generate_report(report_name = "Net_diag")
+#' }
 
 
-generate_report <- function() {
+generate_report <- function(report_name) {
 
-  rmarkdown::render(input = "vignettes/Net_diag.Rmd",
-                    output_file = paste0("Net_diagnostic_",Sys.Date(),".html"),
+  rmarkdown::render(input = paste0("vignettes/",report_name,".Rmd"),
+                    output_file = paste0(report_name,Sys.Date(),".html"),
                     output_dir = "report")
 
 }

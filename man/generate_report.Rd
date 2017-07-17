@@ -4,8 +4,20 @@
 \alias{generate_report}
 \title{Generate diagnostic report}
 \usage{
-generate_report()
+generate_report(report_name)
+}
+\arguments{
+\item{report_name}{Report to generate. Options:
+\itemize{
+\item Net_diag
+\item Realtime_lag
+}}
 }
 \description{
 run this command to render the Net_diag report. The reports are then outputted to the report folder
+}
+\examples{
+\dontrun{
+generate_report(report_name = "Net_diag")
+}
 }
