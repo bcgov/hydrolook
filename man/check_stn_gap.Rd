@@ -4,25 +4,31 @@
 \alias{check_stn_gap}
 \title{Check for interval threshold value}
 \usage{
-check_stn_gap(stations = "ALL", gap_thres = 60, num_gaps = 5)
+check_stn_gap(STATION_NUMBER = "ALL", PROV_TERR_STATE_LOC, gap_thres = 60,
+  num_gaps = 5, tracker = FALSE)
 }
 \arguments{
-\item{stations}{select one station of all. Currently accepts either one station or "ALL"}
+\item{STATION_NUMBER}{Water Survey of Canada station number. No default. Can also take the "ALL" argument.
+Currently you can't mix stations from two difference jurisdictions. See examples.}
+
+\item{PROV_TERR_STATE_LOC}{Province, state or territory. Defaults to "BC". Will not accept ALL.}
 
 \item{gap_thres}{Threshold (in minutes) whereby there is a gap in the stations realtime data. Defaults to 60 minutes. DOES NOT CONNECT TO num_gaps}
 
 \item{num_gaps}{Number of gaps that exceed 20 minutes. Defaults to 5.}
+
+\item{tracker}{Should a progress list of stations be printed while the analysis is executed? Defaults to FALSE}
 }
 \value{
 A dataframe containing all the stations (and associated spatial information) that exceed the gap criteria of gap_thres.
 }
 \description{
-Check all realtime hydrometric stations in the Federal-Provincial network that exceed a user supplied time gap in records (defaults to the 60 minutes).
+Check all realtime hydrometric stations in the Federal-Provincial network that exceed a user supplied time gap in records (defaults to the 60 minutes). \code{STATION_NUMBER} and
+\code{PROV_TERR_STATE_LOC} must both be supplied.
 }
 \examples{
-library(HYDATaddons)
-check_stn_gap(stations = "07EC003")
+check_stn_gap(STATION_NUMBER = c("07EC003","08NL071"), PROV_TERR_STATE_LOC = "BC")
 
-check_stn_gap(stations = "07EC003", gap_thres = 300)
+check_stn_gap(STATION_NUMBER = "07EC003", PROV_TERR_STATE_LOC = "BC", gap_thres = 300)
 
 }

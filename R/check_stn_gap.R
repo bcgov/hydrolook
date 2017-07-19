@@ -13,59 +13,62 @@
 
 #' @title Check for interval threshold value
 #'
-#' @description Check all realtime hydrometric stations in the Federal-Provincial network that exceed a user supplied time gap in records (defaults to the 60 minutes).
-#' @param stations select one station of all. Currently accepts either one station or "ALL"
+#' @description Check all realtime hydrometric stations in the Federal-Provincial network that exceed a user supplied time gap in records (defaults to the 60 minutes). \code{STATION_NUMBER} and
+#' \code{PROV_TERR_STATE_LOC} must both be supplied.
+#' @param STATION_NUMBER Water Survey of Canada station number. No default. Can also take the "ALL" argument.
+#' Currently you can't mix stations from two difference jurisdictions. See examples.
+#' @param PROV_TERR_STATE_LOC Province, state or territory. Defaults to "BC". Will not accept ALL.
 #' @param gap_thres Threshold (in minutes) whereby there is a gap in the stations realtime data. Defaults to 60 minutes. DOES NOT CONNECT TO num_gaps
 #' @param num_gaps Number of gaps that exceed 20 minutes. Defaults to 5.
+#' @param tracker Should a progress list of stations be printed while the analysis is executed? Defaults to FALSE
 #' @return A dataframe containing all the stations (and associated spatial information) that exceed the gap criteria of gap_thres.
 #'
 #' @export
 #'
 #' @examples
-#' library(HYDATaddons)
-#' check_stn_gap(stations = "07EC003")
+#' check_stn_gap(STATION_NUMBER = c("07EC003","08NL071"), PROV_TERR_STATE_LOC = "BC")
 #'
-#' check_stn_gap(stations = "07EC003", gap_thres = 300)
+#' check_stn_gap(STATION_NUMBER = "07EC003", PROV_TERR_STATE_LOC = "BC", gap_thres = 300)
 #'
 
-check_stn_gap <- function(stations = "ALL", gap_thres = 60, num_gaps = 5) {
+check_stn_gap <- function(STATION_NUMBER = "ALL", PROV_TERR_STATE_LOC, gap_thres = 60, num_gaps = 5, tracker = FALSE) {
+
+  if(missing(STATION_NUMBER) | missing(PROV_TERR_STATE_LOC))
+    stop("STATION_NUMBER or PROV_TERR_STATE_LOC argument is missing. These arguments must match jurisdictions.")
+
+  stations = STATION_NUMBER
+  prov = PROV_TERR_STATE_LOC
 
   ## Pull all the stations that are currently realtime
-  all_stations = tidyhydat::download_network(PROV_TERR_STATE_LOC = "ALL")
+  allstations = tidyhydat::download_network(PROV_TERR_STATE_LOC = prov)
 
-  ## Find the subset that is BC
-  bcstations = all_stations[all_stations$PROV_TERR_STATE_LOC == "BC", ]
-  ## Error stations TODO: A better way to handle this
-  #bcstations = bcstations[!bcstations$station_number == "07FD004", ]
 
   ##Which stations should perform the test on?
-  if (stations == "ALL") {
-    loop_stations = bcstations$STATION_NUMBER
+  if (stations[1] == "ALL") {
+    loop_stations = allstations$STATION_NUMBER
     #loop_stations = c("07EA005","07FD004","10BE001","08LG067","08NN023", "10BE009")
   } else {
     loop_stations = stations
   }
 
-  #loop_stations <- c("07EC003")
-  #i <- "07EC003"
-  #i <- "10BE001"
-  #i <- "08CE001"
-  #gap_thres = 3600
-  #num_gaps = 5
-  ## Loop  to find
+
   df <- c()
   for (i in 1:length(loop_stations)) {
-    #cat(paste0("Checking station: ", loop_stations[i], "\n"))
+    if (tracker == TRUE){
+    cat(paste0("Checking station: ", loop_stations[i], "\n"))
+    }
 
     rtdata = tryCatch(
       #HYDAT::RealTimeData(station_number = loop_stations[i], prov_terr_loc = "BC"),
-      tidyhydat::download_realtime(STATION_NUMBER = loop_stations[i], PROV_TERR_STATE_LOC = "BC"),
+      tidyhydat::download_realtime(STATION_NUMBER = loop_stations[i], PROV_TERR_STATE_LOC = prov),
       error = function(e)
         data.frame(Status = e$message)
     )
 
+
+
     ## Is there a status column?
-    if (is.null(rtdata$Status) == TRUE) {
+    if (!"Status" %in% colnames(rtdata)) {
       interval = diff(rtdata$date_time)
 
       ########################################################################
@@ -120,12 +123,13 @@ check_stn_gap <- function(stations = "ALL", gap_thres = 60, num_gaps = 5) {
   }
 
   ## Check if any stations met the criteria?
-  ## If so join with original bcstations dataframe for a nice output
+  ## If so join with original allstations dataframe for a nice output
   if (!is.null(df)) {
     df$STATION_NUMBER = as.character(df$STATION_NUMBER)
-    df = dplyr::right_join(bcstations, df, by = c("STATION_NUMBER"))
+    df = dplyr::right_join(allstations, df, by = c("STATION_NUMBER"))
     df$TIMEZONE <- NULL ## don't need the timezone column
     df$PROV_TERR_STATE_LOC <- NULL ## don't need the prov_terr_loc column
+
     return(df)
   } else {
     cat(paste0("Either no interval greater than ", gap_thres, " minutes or \n not more than ", num_gaps, " 20 minutes gaps"))
@@ -133,30 +137,6 @@ check_stn_gap <- function(stations = "ALL", gap_thres = 60, num_gaps = 5) {
 
 }
 
-
-
-    ### Step 2: Create a vector that spans the full range of time at every five minute interval
-    #full_date_vector = data.frame(date_time = seq(min(rtdata$date_time), max(rtdata$date_time), by = "5 min"),
-    #                              station_number = i)
-    #full_date_vector$station_number <- as.character(full_date_vector$station_number)
-#
-    ### Step 3: Join rtdata and full_date so that missing date show up as NA
-    #full_df = dplyr::right_join(rtdata,
-    #                    full_date_vector,
-    #                    by = c("date_time", "station_number"))
-#
-    ### Step 4a: Remove left over NA's for station in .csv's
-    #full_df2 = dplyr::filter(full_df, !is.na(station_number))
-#
-    ### Step 4: Find if there any NA's for the time series
-    #num_missing_value = nrow(dplyr::filter(full_df, is.na(qr)))
-#
-    ## Conditional if there are more than 1 missing value
-    #u = data.frame(station_number = unique(full_df2$station_number),
-    #               num_missing_value)
-    #df = rbind(u, df)
-
-    #}, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
 
 
 
