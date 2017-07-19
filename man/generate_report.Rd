@@ -19,5 +19,6 @@ run this command to render the Net_diag report. The reports are then outputted t
 \examples{
 \dontrun{
 generate_report(report_name = "Net_diag")
+generate_report(report_name = "Realtime_lag")
 }
 }

@@ -26,6 +26,7 @@
 #' @examples
 #' \dontrun{
 #' generate_report(report_name = "Net_diag")
+#' generate_report(report_name = "Realtime_lag")
 #' }
 
 
