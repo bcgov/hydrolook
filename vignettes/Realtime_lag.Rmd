@@ -31,6 +31,8 @@ library(tidyhydat)
 library(hydrolook)
 library(ggplot2)
 library(dplyr)
+library(tidyr)
+library(knitr)
 
 
 ```
@@ -39,12 +41,24 @@ library(dplyr)
 # Introduction
 ```{r}
 bc_lag <- check_realtime_lag(STATION_NUMBER = "ALL", PROV_TERR_STATE_LOC = "BC")
+#bc_lag <- check_realtime_lag(STATION_NUMBER = c("08NL071","08LG048"), PROV_TERR_STATE_LOC = "BC")
 bc_lag
 ```
 
-```{r}
+# Summary
+```{r, echo = FALSE}
+lag_tbl <- bc_lag %>%
+  filter(!is.na(time_lag_num)) %>%
+  summarise_at(vars(time_lag_num), funs(mean, median, sd, min, max))
+
+kable(lag_tbl)
+
+```
+
+```{r, warning=FALSE}
 num_stations = nrow(bc_lag)
-bc_lag2 %>%
+
+bc_lag %>%
   mutate(Grouping = case_when(
    time_lag_num >= 1000 ~ "Over 1000 minutes", 
    time_lag_num < 1000 ~ "Under 1000 minutes"

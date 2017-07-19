@@ -27,7 +27,8 @@ vignette: >
 
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, messages = FALSE, fig.width = 8, fig.height = 12)
 
-library(tidyverse)
+library(dplyr)
+library(tidyr)
 library(tidyhydat)
 library(hydrolook)
 library(sf)
@@ -67,7 +68,7 @@ cat(paste0("number_gaps = ", number_gaps, " (number of gaps that are 20 minutes 
 ```
 
 ```{r run_analysis, error=TRUE, warning=FALSE, message=FALSE}
-gaps <- check_stn_gap(stations = station_number, gap_thres = gap_threshold, num_gaps = number_gaps) %>%
+gaps <- check_stn_gap(STATION_NUMBER = station_number, PROV_TERR_STATE_LOC = "BC", gap_thres = gap_threshold, num_gaps = number_gaps) %>%
   do(st_as_sf(., coords = c("LONGITUDE", "LATITUDE"), 
               crs = 4326, 
               agr = "constant")) %>%
@@ -141,10 +142,10 @@ if (nrow(ldg) != 0){
 ## Figure
 ```{r realdata_ldg}
 if (nrow(ldg) != 0){
-  all_real <- download_realtime(STATION_NUMBER = ldg$STATION_NUMBER)
+  all_real <- download_realtime(STATION_NUMBER = ldg$STATION_NUMBER, PROV_TERR_STATE_LOC = "BC")
   #all_real <- bind_realtime(stations = ldg$station_number) 
 } else {
-  all_real <- download_realtime(STATION_NUMBER = STATION_NUMBER)
+  all_real <- download_realtime(STATION_NUMBER = STATION_NUMBER, PROV_TERR_STATE_LOC = "BC")
 }
 ```
 
@@ -221,9 +222,9 @@ if (nrow(fdg) != 0){
 ## Figure
 ```{r realdata_fdg}
 if (nrow(fdg) != 0){
-  all_real <- download_realtime(STATION_NUMBER = fdg$STATION_NUMBER)
+  all_real <- download_realtime(STATION_NUMBER = fdg$STATION_NUMBER, PROV_TERR_STATE_LOC = "BC")
 } else {
-all_real <- download_realtime(STATION_NUMBER = STATION_NUMBER)
+all_real <- download_realtime(STATION_NUMBER = STATION_NUMBER, PROV_TERR_STATE_LOC = "BC")
 }
 ```
 
