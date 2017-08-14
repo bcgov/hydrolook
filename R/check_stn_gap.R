@@ -59,7 +59,6 @@ check_stn_gap <- function(STATION_NUMBER = "ALL", PROV_TERR_STATE_LOC, gap_thres
     }
 
     rtdata = tryCatch(
-      #HYDAT::RealTimeData(station_number = loop_stations[i], prov_terr_loc = "BC"),
       tidyhydat::download_realtime2(STATION_NUMBER = loop_stations[i], PROV_TERR_STATE_LOC = prov),
       error = function(e)
         data.frame(Status = e$message)
@@ -69,6 +68,10 @@ check_stn_gap <- function(STATION_NUMBER = "ALL", PROV_TERR_STATE_LOC, gap_thres
 
     ## Is there a status column?
     if (!"Status" %in% colnames(rtdata)) {
+
+      ##Take only the level data
+      rtdata = dplyr::filter(rtdata, Parameter == "LEVEL")
+
       interval = diff(rtdata$Date)
 
       ########################################################################
