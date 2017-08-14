@@ -30,12 +30,12 @@ the time delay for the network from data acquisition to data upload.
 Check lag of real time stations using most recent observations and modification date of most recent file.
 }
 \examples{
-check_realtime_lag(STATION_NUMBER = "08NL071")
-check_realtime_lag(STATION_NUMBER = c("08NL071","07EB002"))
+check_realtime_lag(STATION_NUMBER = "08NL071", PROV_TERR_STATE_LOC = "BC")
+check_realtime_lag(STATION_NUMBER = c("08NL071","07EB002"), PROV_TERR_STATE_LOC = "BC")
 
 ## This will throw an error
 \dontrun{
-check_realtime_lag(STATION_NUMBER = c("08NL071","05QB002"))
+check_realtime_lag(STATION_NUMBER = c("08NL071","05QB002"), PROV_TERR_STATE_LOC = "BC")
 }
 
 ## To check all stations in Alberta:

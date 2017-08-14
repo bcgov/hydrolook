@@ -32,8 +32,16 @@
 
 generate_report <- function(report_name) {
 
-  rmarkdown::render(input = paste0("vignettes/",report_name,".Rmd"),
+  if(report_name == "Realtime_lag"){
+    input_path = system.file("doc", "Realtime_lag.Rmd", package="hydrolook")
+  }
+
+  if(report_name == "Net_diag"){
+    input_path = system.file("doc", "Net_diag.Rmd", package="hydrolook")
+  }
+
+  rmarkdown::render(input = input_path,
                     output_file = paste0(report_name,Sys.Date(),".html"),
-                    output_dir = "report")
+                    output_dir = paste0("report/",report_name))
 
 }

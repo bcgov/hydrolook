@@ -60,7 +60,7 @@ check_stn_gap <- function(STATION_NUMBER = "ALL", PROV_TERR_STATE_LOC, gap_thres
 
     rtdata = tryCatch(
       #HYDAT::RealTimeData(station_number = loop_stations[i], prov_terr_loc = "BC"),
-      tidyhydat::download_realtime(STATION_NUMBER = loop_stations[i], PROV_TERR_STATE_LOC = prov),
+      tidyhydat::download_realtime2(STATION_NUMBER = loop_stations[i], PROV_TERR_STATE_LOC = prov),
       error = function(e)
         data.frame(Status = e$message)
     )
@@ -69,7 +69,7 @@ check_stn_gap <- function(STATION_NUMBER = "ALL", PROV_TERR_STATE_LOC, gap_thres
 
     ## Is there a status column?
     if (!"Status" %in% colnames(rtdata)) {
-      interval = diff(rtdata$date_time)
+      interval = diff(rtdata$Date)
 
       ########################################################################
       # Criteria1: Does this station have any data gaps larger than "gap_thres?" #

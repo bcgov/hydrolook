@@ -3,6 +3,7 @@
 export(check_realtime_lag)
 export(check_stn_gap)
 export(generate_report)
+export(station_report)
 import(dplyr)
 import(tidyhydat)
 import(tidyr)

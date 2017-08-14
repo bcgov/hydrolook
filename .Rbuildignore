@@ -1,6 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^report$
 ^README\.Rmd$
 
 ^CONTRIBUTING\.md$

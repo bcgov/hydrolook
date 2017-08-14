@@ -6,7 +6,7 @@ output:
 
 ```{r echo=FALSE, results='asis'}
 ## Insert 'inspiration', 'exploration', or 'delivery'
-envreportutils::devex_badge('exploration')
+bcgovr::devex_badge('exploration')
 ```
 
 
@@ -25,10 +25,11 @@ The hydrolook package has been developed to provide a series semi-automated repo
 
 
 ## Installation
-To install the `hydrolook` package, you need to install the devtools package then the `hydrolook` package
+To install the `hydrolook` package, you need to install the devtools package then both the `hydrolook` and `tidyhydat` package
 ```{r, echo=TRUE, eval=FALSE}
 install.packages("devtools")
 devtools::install_github("bcgov/hydrolook")
+devtools::install_github("bcgov/tidyhydat")
 ```
 Then to load the package you need to use the library command. When you install hydrolook, several other packages will be installed as well. One of those packages, `dplyr`, is useful for data manipulations and is used regularly here. Even though `dplyr` is installed alongside `hydrolook`, you must still load it explicitly.
 ```{r, eval = TRUE, echo=TRUE}
@@ -114,7 +115,7 @@ Please note that this project is released with a [Contributor Code of Conduct](C
 
 ## License
 
-    Copyright 2015 Province of British Columbia
+    Copyright 2017 Province of British Columbia
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

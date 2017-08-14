@@ -9,11 +9,12 @@ The hydrolook package has been developed to provide a series semi-automated repo
 Installation
 ------------
 
-To install the hydrolook package, you need to install the devtools package then the hydrolook package
+To install the `hydrolook` package, you need to install the devtools package then both the `hydrolook` and `tidyhydat` package
 
 ``` r
 install.packages("devtools")
 devtools::install_github("bcgov/hydrolook")
+devtools::install_github("bcgov/tidyhydat")
 ```
 
 Then to load the package you need to use the library command. When you install hydrolook, several other packages will be installed as well. One of those packages, `dplyr`, is useful for data manipulations and is used regularly here. Even though `dplyr` is installed alongside `hydrolook`, you must still load it explicitly.
@@ -21,6 +22,7 @@ Then to load the package you need to use the library command. When you install h
 ``` r
 library(hydrolook)
 library(dplyr)
+#> Warning: package 'dplyr' was built under R version 3.4.1
 #> 
 #> Attaching package: 'dplyr'
 #> The following objects are masked from 'package:stats':
@@ -43,12 +45,16 @@ You will need to download that file, unzip it and put it somewhere on local stor
 Example
 -------
 
-This is a basic example of `hydrolook` usage. All functions that interact with HYDAT are capitalized (e.g. STATIONS). These functions follow a common argument structure which can be illustrated with the `DLY_FLOWS()` function. If you would like to extract only station `08LA001` you must supply the `STATION_NUMBER` and the `PROV_TERR_STATE_LOC` arguments:
+This is a basic example of `hydrolook` usage. Reports are written in rmarkdown format and are generated using `generate_report()`. For example, if we wanted to generate the Net\_diag report we could use the following command:
 
-Check stn\_gap of all stations
-------------------------------
+``` r
+generate_report(report_name = "Net_diag")
+```
 
-This will take about 20 minutes to run
+Check stn\_gap of all stations across Canada
+--------------------------------------------
+
+This will take about 20 minutes to run. This illustrates how `hydrolook` functionality can be extended.
 
 ``` r
 start_time = Sys.time()
@@ -113,7 +119,7 @@ Please note that this project is released with a [Contributor Code of Conduct](C
 License
 -------
 
-    Copyright 2015 Province of British Columbia
+    Copyright 2017 Province of British Columbia
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
