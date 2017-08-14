@@ -1,20 +1,28 @@
 Package: hydrolook
 Title: Provides a series of utilities that build off the tidyhydat package
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: c(person("Sam", "Albers", email = "sam.albers@gov.bc.ca", role = c("aut","cre")),
   person("Province of British Columbia", role="cph"))
-Description: A series of utilities that aid to generate a diagnostic report of the real-time WSC network
+Description: A series of utilities that aid to generate a diagnostic report of the real-time WSC network.
 Depends: R (>= 3.4.0)
 License: file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
    tidyhydat,
+   tibble,
    dplyr,
+   rvest,
+   xml2,
+   tidyr,
+   lubridate,
    rmarkdown,
    readr
 RoxygenNote: 6.0.1
 Suggests: 
    knitr,
-   ggplot2
+   ggplot2,
+   sf,
+   tidyverse,
+   bcmaps
 VignetteBuilder: knitr

@@ -25,8 +25,25 @@
 #' @importFrom readr read_csv
 #' @importFrom readr cols
 #' @importFrom rmarkdown render
+#' @importFrom xml2 read_html
+#' @importFrom lubridate dmy_hm
+#' @import tidyr
 #' @import tidyhydat
 #' @import dplyr
 #'
 NULL
+
+#' REmoves notes from R CMD check for NSE
+#'
+.onLoad <- function(libname = find.package("hydrolook"), pkgname = "hydrolook"){
+  # CRAN Note avoidance
+  if(getRversion() >= "2.15.1")
+    utils::globalVariables(
+      # Vars used in Non-Standard Evaluations, declare here to avoid CRAN warnings
+      c("Raw_var", "date_time", "Date", "Time", "filename",
+        "." # piping requires '.' at times
+      )
+    )
+  invisible()
+}
 
