@@ -75,7 +75,7 @@ check_realtime_lag <- function(STATION_NUMBER, PROV_TERR_STATE_LOC,
 
   if(STATION_NUMBER[1] == "ALL") {
   ## Download province stations that are real time
-  full_net <- tidyhydat::download_network(PROV_TERR_STATE_LOC = prov)
+  full_net <- tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = prov)
 
   ## Add them to the loop
   stns = full_net[full_net$PROV_TERR_STATE_LOC == prov,]$STATION_NUMBER

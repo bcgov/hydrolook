@@ -22,7 +22,6 @@ Then to load the package you need to use the library command. When you install h
 ``` r
 library(hydrolook)
 library(dplyr)
-#> Warning: package 'dplyr' was built under R version 3.4.1
 #> 
 #> Attaching package: 'dplyr'
 #> The following objects are masked from 'package:stats':
@@ -59,7 +58,7 @@ This will take about 20 minutes to run. This illustrates how `hydrolook` functio
 ``` r
 start_time = Sys.time()
 ## Download all stations
-stns <- tidyhydat::download_network(PROV_TERR_STATE_LOC = "ALL")
+stns <- tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = "ALL")
 
 ## Create a vector of all PROV_TERR_STATE_LOC values
 stns_loop_var <- unique(stns$PROV_TERR_STATE_LOC)
@@ -82,7 +81,7 @@ Then you can plot the results across jurisdictions
 ``` r
 lag_df %>%
   mutate(time_lag_h = as.double(time_lag, units= "hours")) %>%
-  full_join(tidyhydat::download_network(PROV_TERR_STATE_LOC = "ALL"), 
+  full_join(tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = "ALL"), 
             by = c("STATION_NUMBER", "PROV_TERR_STATE_LOC")) %>%
   ggplot(aes(x = LONGITUDE, y = time_lag_h, colour = PROV_TERR_STATE_LOC)) +
   geom_point() +
@@ -91,7 +90,7 @@ lag_df %>%
 
 lag_df %>%
   mutate(time_lag_h = as.double(time_lag, units= "hours")) %>%
-  full_join(tidyhydat::download_network(PROV_TERR_STATE_LOC = "ALL"), 
+  full_join(tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = "ALL"), 
             by = c("STATION_NUMBER", "PROV_TERR_STATE_LOC")) %>%
   ggplot(aes(x  = time_lag_h)) +
   geom_histogram(binwidth = 1) +

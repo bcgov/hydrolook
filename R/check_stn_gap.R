@@ -40,7 +40,7 @@ check_stn_gap <- function(STATION_NUMBER = "ALL", PROV_TERR_STATE_LOC, gap_thres
   prov = PROV_TERR_STATE_LOC
 
   ## Pull all the stations that are currently realtime
-  allstations = tidyhydat::download_network(PROV_TERR_STATE_LOC = prov)
+  allstations = tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = prov)
 
 
   ##Which stations should perform the test on?
@@ -59,7 +59,7 @@ check_stn_gap <- function(STATION_NUMBER = "ALL", PROV_TERR_STATE_LOC, gap_thres
     }
 
     rtdata = tryCatch(
-      tidyhydat::download_realtime2(STATION_NUMBER = loop_stations[i], PROV_TERR_STATE_LOC = prov),
+      tidyhydat::download_realtime_dd(STATION_NUMBER = loop_stations[i], PROV_TERR_STATE_LOC = prov),
       error = function(e)
         data.frame(Status = e$message)
     )

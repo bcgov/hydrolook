@@ -48,7 +48,11 @@ You will need to download that file, unzip it and put it somewhere on local stor
 
 This is a basic example of `hydrolook` usage. Reports are written in rmarkdown format and are generated using `generate_report()`. For example, if we wanted to generate the Net_diag report we could use the following command:
 ```{r, eval = FALSE}
-generate_report(report_name = "Net_diag")
+generate_report(report_name = "Net_diag") 
+
+generate_report(report_name = "Realtime_lag")
+
+station_report(STATION_NUMBER = "08MF005", PROV_TERR_STATE_LOC = "BC")
 ```
 
 
@@ -57,7 +61,7 @@ This will take about 20 minutes to run. This illustrates how `hydrolook` functio
 ```{r, eval = FALSE}
 start_time = Sys.time()
 ## Download all stations
-stns <- tidyhydat::download_network(PROV_TERR_STATE_LOC = "ALL")
+stns <- tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = "ALL")
 
 ## Create a vector of all PROV_TERR_STATE_LOC values
 stns_loop_var <- unique(stns$PROV_TERR_STATE_LOC)
@@ -80,7 +84,7 @@ Then you can plot the results across jurisdictions
 ```{r, eval = FALSE}
 lag_df %>%
   mutate(time_lag_h = as.double(time_lag, units= "hours")) %>%
-  full_join(tidyhydat::download_network(PROV_TERR_STATE_LOC = "ALL"), 
+  full_join(tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = "ALL"), 
             by = c("STATION_NUMBER", "PROV_TERR_STATE_LOC")) %>%
   ggplot(aes(x = LONGITUDE, y = time_lag_h, colour = PROV_TERR_STATE_LOC)) +
   geom_point() +
@@ -89,7 +93,7 @@ lag_df %>%
 
 lag_df %>%
   mutate(time_lag_h = as.double(time_lag, units= "hours")) %>%
-  full_join(tidyhydat::download_network(PROV_TERR_STATE_LOC = "ALL"), 
+  full_join(tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = "ALL"), 
             by = c("STATION_NUMBER", "PROV_TERR_STATE_LOC")) %>%
   ggplot(aes(x  = time_lag_h)) +
   geom_histogram(binwidth = 1) +
