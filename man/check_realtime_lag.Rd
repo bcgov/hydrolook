@@ -4,7 +4,7 @@
 \alias{check_realtime_lag}
 \title{Check real time lag of realtime stations}
 \usage{
-check_realtime_lag(STATION_NUMBER, PROV_TERR_STATE_LOC,
+check_realtime_lag(STATION_NUMBER = NULL, PROV_TERR_STATE_LOC = NULL,
   data_interval = "hourly", tracker = FALSE)
 }
 \arguments{
@@ -30,16 +30,10 @@ the time delay for the network from data acquisition to data upload.
 Check lag of real time stations using most recent observations and modification date of most recent file.
 }
 \examples{
-check_realtime_lag(STATION_NUMBER = "08NL071", PROV_TERR_STATE_LOC = "BC")
-check_realtime_lag(STATION_NUMBER = c("08NL071","07EB002"), PROV_TERR_STATE_LOC = "BC")
+check_realtime_lag(STATION_NUMBER = c("08NL071","05QB002"))
 
-## This will throw an error
-\dontrun{
-check_realtime_lag(STATION_NUMBER = c("08NL071","05QB002"), PROV_TERR_STATE_LOC = "BC")
-}
-
-## To check all stations in Alberta:
-check_realtime_lag(PROV_TERR_STATE_LOC = "BC")
+## To check all stations in PEI:
+check_realtime_lag(PROV_TERR_STATE_LOC = "PE")
 
 \dontrun{
 

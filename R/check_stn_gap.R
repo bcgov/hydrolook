@@ -26,30 +26,31 @@
 #' @export
 #'
 #' @examples
-#' check_stn_gap(STATION_NUMBER = c("07EC003","08NL071"), PROV_TERR_STATE_LOC = "BC")
+#' check_stn_gap(STATION_NUMBER = c("07EC003","08NL071"))
 #'
-#' check_stn_gap(STATION_NUMBER = "07EC003", PROV_TERR_STATE_LOC = "BC", gap_thres = 300)
+#' check_stn_gap(PROV_TERR_STATE_LOC = "PE", gap_thres = 300)
 #'
 
-check_stn_gap <- function(STATION_NUMBER = "ALL", PROV_TERR_STATE_LOC, gap_thres = 60, num_gaps = 5, tracker = FALSE) {
+check_stn_gap <- function(STATION_NUMBER = NULL, PROV_TERR_STATE_LOC = NULL, gap_thres = 60, num_gaps = 5, tracker = FALSE) {
 
-  if(missing(STATION_NUMBER) | missing(PROV_TERR_STATE_LOC))
-    stop("STATION_NUMBER or PROV_TERR_STATE_LOC argument is missing. These arguments must match jurisdictions.")
+  if(is.null(STATION_NUMBER) && is.null(PROV_TERR_STATE_LOC))
+    stop("STATION_NUMBER or PROV_TERR_STATE_LOC argument is missing. One argument must be supplied")
 
   stations = STATION_NUMBER
   prov = PROV_TERR_STATE_LOC
 
-  ## Pull all the stations that are currently realtime
-  allstations = tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = prov)
-
-
-  ##Which stations should perform the test on?
-  if (stations[1] == "ALL") {
+  ## If station is omitted
+  if(is.null(stations)){
+    allstations = tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = prov)
     loop_stations = allstations$STATION_NUMBER
-    #loop_stations = c("07EA005","07FD004","10BE001","08LG067","08NN023", "10BE009")
-  } else {
-    loop_stations = stations
   }
+
+  ## If prov is omitted
+  if(is.null(prov)){
+  loop_stations = stations
+  allstations = tibble(STATION_NUMBER = stations)
+  }
+
 
 
   df <- c()
@@ -59,7 +60,7 @@ check_stn_gap <- function(STATION_NUMBER = "ALL", PROV_TERR_STATE_LOC, gap_thres
     }
 
     rtdata = tryCatch(
-      tidyhydat::download_realtime_dd(STATION_NUMBER = loop_stations[i], PROV_TERR_STATE_LOC = prov),
+      tidyhydat::download_realtime_dd(STATION_NUMBER = loop_stations[i]),
       error = function(e)
         data.frame(Status = e$message)
     )

@@ -31,16 +31,10 @@
 #' }
 #'
 #' @examples
-#' check_realtime_lag(STATION_NUMBER = "08NL071", PROV_TERR_STATE_LOC = "BC")
-#' check_realtime_lag(STATION_NUMBER = c("08NL071","07EB002"), PROV_TERR_STATE_LOC = "BC")
+#' check_realtime_lag(STATION_NUMBER = c("08NL071","05QB002"))
 #'
-#' ## This will throw an error
-#' \dontrun{
-#' check_realtime_lag(STATION_NUMBER = c("08NL071","05QB002"), PROV_TERR_STATE_LOC = "BC")
-#' }
-#'
-#' ## To check all stations in Alberta:
-#' check_realtime_lag(PROV_TERR_STATE_LOC = "BC")
+#' ## To check all stations in PEI:
+#' check_realtime_lag(PROV_TERR_STATE_LOC = "PE")
 #'
 #' \dontrun{
 #'
@@ -67,21 +61,35 @@
 #'
 #' @export
 
-check_realtime_lag <- function(STATION_NUMBER, PROV_TERR_STATE_LOC,
+check_realtime_lag <- function(STATION_NUMBER = NULL, PROV_TERR_STATE_LOC = NULL,
                                data_interval = "hourly", tracker = FALSE) {
   prov = PROV_TERR_STATE_LOC
 
-  if(prov == "ALL") {message("ALL is not valid input. Please select individual jurisdictions")}
+  #if(prov == "ALL") {message("ALL is not valid input. Please select individual jurisdictions")}
 
-  if(STATION_NUMBER[1] == "ALL") {
-  ## Download province stations that are real time
-  full_net <- tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = prov)
-
-  ## Add them to the loop
-  stns = full_net[full_net$PROV_TERR_STATE_LOC == prov,]$STATION_NUMBER
-  } else{
+  if(!is.null(STATION_NUMBER)){
     stns = STATION_NUMBER
+    choose_df = realtime_network_meta()
+    choose_df = filter(choose_df, STATION_NUMBER %in% stns)
+    choose_df = select(choose_df, STATION_NUMBER, PROV_TERR_STATE_LOC)
   }
+
+  if(is.null(STATION_NUMBER) ){
+    choose_df = realtime_network_meta(PROV_TERR_STATE_LOC = PROV_TERR_STATE_LOC)
+    choose_df = select(choose_df, STATION_NUMBER, PROV_TERR_STATE_LOC)
+  }
+
+  #if(is.null(STATION_NUMBER)) {
+  #  ## Download province stations that are real time
+  #  full_net <- tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = prov)
+  #  ## Add them to the loop
+  #  stns = full_net[full_net$PROV_TERR_STATE_LOC == prov,]$STATION_NUMBER
+  #}
+#
+  #if(is.null(PROV_TERR_STATE_LOC)){
+  #  stns = STATION_NUMBER
+  #
+  #}
 
   lag_c <- c()
 
@@ -89,12 +97,13 @@ check_realtime_lag <- function(STATION_NUMBER, PROV_TERR_STATE_LOC,
   colHeaders <- c("STATION_NUMBER", "date_time", "LEVEL", "LEVEL_GRADE", "LEVEL_SYMBOL", "LEVEL_CODE",
                   "FLOW", "FLOW_GRADE", "FLOW_SYMBOL", "FLOW_CODE")
 
-  for (i in 1:length(stns) ){
+  for (i in 1:nrow(choose_df) ){
     if (tracker == TRUE){
     cat(paste0("Station:",stns[i],"\n"))
     }
-
-    STATION_NUMBER_SEL = stns[i]
+    ## Specify from choose_df
+    STATION_NUMBER_SEL = choose_df$STATION_NUMBER[i]
+    PROV_SEL = choose_df$PROV_TERR_STATE_LOC[i]
 
     ### Date Modified
     base_url = "http://dd.weather.gc.ca/hydrometric"
@@ -102,8 +111,8 @@ check_realtime_lag <- function(STATION_NUMBER, PROV_TERR_STATE_LOC,
 
     # build URL
 
-    url <- sprintf("%s/csv/%s/%s", base_url, PROV_TERR_STATE_LOC, data_interval)
-    infile <- sprintf("%s/%s_%s_%s_hydrometric.csv", url, PROV_TERR_STATE_LOC, STATION_NUMBER_SEL, data_interval)
+    url <- sprintf("%s/csv/%s/%s", base_url, PROV_SEL, data_interval)
+    infile <- sprintf("%s/%s_%s_%s_hydrometric.csv", url, PROV_SEL, STATION_NUMBER_SEL, data_interval)
 
     ## Scrape web data
     time_mod <- xml2::read_html(url) %>%

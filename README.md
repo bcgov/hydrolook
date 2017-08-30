@@ -39,7 +39,7 @@ To use most of the `hydrolook` package you will need the most recent version of 
 
 -   <http://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/>
 
-You will need to download that file, unzip it and put it somewhere on local storage. The path to the sqlite3 must be specified within each function that uses HYDAT.
+You will need to download that file, unzip it and put it somewhere on local storage. The path to the sqlite3 must be specified within each function that uses HYDAT. Or you can use the `download_hydat()` function from `tidyhydat`.
 
 Example
 -------
@@ -47,7 +47,11 @@ Example
 This is a basic example of `hydrolook` usage. Reports are written in rmarkdown format and are generated using `generate_report()`. For example, if we wanted to generate the Net\_diag report we could use the following command:
 
 ``` r
-generate_report(report_name = "Net_diag")
+generate_report(report_name = "Net_diag") 
+
+generate_report(report_name = "Realtime_lag")
+
+station_report(STATION_NUMBER = "08MF005", PROV_TERR_STATE_LOC = "BC")
 ```
 
 Check stn\_gap of all stations across Canada

@@ -42,7 +42,7 @@ To use most of the `hydrolook` package you will need the most recent version of 
 
 - http://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/
 
-You will need to download that file, unzip it and put it somewhere on local storage. The path to the sqlite3 must be specified within each function that uses HYDAT.  
+You will need to download that file, unzip it and put it somewhere on local storage. The path to the sqlite3 must be specified within each function that uses HYDAT. Or you can use the `download_hydat()` function from `tidyhydat`. 
 
 ## Example
 

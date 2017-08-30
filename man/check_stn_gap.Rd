@@ -4,8 +4,8 @@
 \alias{check_stn_gap}
 \title{Check for interval threshold value}
 \usage{
-check_stn_gap(STATION_NUMBER = "ALL", PROV_TERR_STATE_LOC, gap_thres = 60,
-  num_gaps = 5, tracker = FALSE)
+check_stn_gap(STATION_NUMBER = NULL, PROV_TERR_STATE_LOC = NULL,
+  gap_thres = 60, num_gaps = 5, tracker = FALSE)
 }
 \arguments{
 \item{STATION_NUMBER}{Water Survey of Canada station number. No default. Can also take the "ALL" argument.
@@ -27,8 +27,8 @@ Check all realtime hydrometric stations in the Federal-Provincial network that e
 \code{PROV_TERR_STATE_LOC} must both be supplied.
 }
 \examples{
-check_stn_gap(STATION_NUMBER = c("07EC003","08NL071"), PROV_TERR_STATE_LOC = "BC")
+check_stn_gap(STATION_NUMBER = c("07EC003","08NL071"))
 
-check_stn_gap(STATION_NUMBER = "07EC003", PROV_TERR_STATE_LOC = "BC", gap_thres = 300)
+check_stn_gap(PROV_TERR_STATE_LOC = "PE", gap_thres = 300)
 
 }
