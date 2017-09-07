@@ -24,12 +24,15 @@
 #' @importFrom tibble tibble
 #' @importFrom readr read_csv
 #' @importFrom readr cols
-#' @importFrom rmarkdown render
 #' @importFrom xml2 read_html
 #' @importFrom lubridate dmy_hm
 #' @import tidyr
-#' @import tidyhydat
 #' @import dplyr
+#' @import knitr
+#' @import rmarkdown
+#' @import rvest
+# @import tidyhydat
+# @import kableExtra
 #'
 NULL
 
@@ -40,7 +43,7 @@ NULL
   if(getRversion() >= "2.15.1")
     utils::globalVariables(
       # Vars used in Non-Standard Evaluations, declare here to avoid CRAN warnings
-      c("Raw_var", "date_time", "Date", "Time", "filename",
+      c("Raw_var", "date_time", "Date", "Time", "filename","Parameter",
         "." # piping requires '.' at times
       )
     )
