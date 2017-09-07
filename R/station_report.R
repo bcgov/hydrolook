@@ -25,7 +25,7 @@
 #'
 #'
 station_report = function(STATION_NUMBER, PROV_TERR_STATE_LOC){
-  rmarkdown::render(system.file("doc", "station_report.Rmd", package="hydrolook"),
+  rmarkdown::render(system.file("templates", "station_report.Rmd", package="hydrolook"),
                     params = list(
                       STATION_NUMBER = STATION_NUMBER,
                       PROV_TERR_STATE_LOC = PROV_TERR_STATE_LOC),

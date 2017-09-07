@@ -37,13 +37,13 @@ generate_report <- function(report_name, output_type = "pdf", province = "BC") {
     stop('output_type must be "pdf" or "html"')
   }
 
-  #if(report_name == "Realtime_lag"){
-  #  input_path = system.file("doc", "Realtime_lag.Rmd", package="hydrolook")
-  #}
-
-  if(report_name == "Net_diag"){
-    input_path = system.file("doc", "Net_diag.Rmd", package="hydrolook")
+  if(report_name == "Realtime_lag"){
+    input_path = system.file("templates", "Realtime_lag.Rmd", package="hydrolook")
   }
+
+  #if(report_name == "Net_diag"){
+  #  input_path = system.file("templates", "Net_diag.Rmd", package="hydrolook")
+  #}
 
   rmarkdown::render(input = input_path,
                     output_format = paste0(output_type,"_document"),
