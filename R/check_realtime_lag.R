@@ -31,31 +31,11 @@
 #' }
 #'
 #' @examples
+#' \donttest{
 #' check_realtime_lag(STATION_NUMBER = c("08NL071","05QB002"))
 #'
 #' ## To check all stations in PEI:
 #' check_realtime_lag(PROV_TERR_STATE_LOC = "PE")
-#'
-#' \dontrun{
-#'
-#' start_time = Sys.time()
-#' ## Download all stations
-#' stns <- tidyhydat::download_network(PROV_TERR_STATE_LOC = "ALL")
-#'
-#' ## Create a vector of all PROV_TERR_STATE_LOC values
-#' stns_loop_var <- unique(stns$PROV_TERR_STATE_LOC)
-#'
-#' #stns_loop_var <- "PE"
-#' lag_df <- c()
-#' for (i in 1:length(stns_loop_var)) {
-#'   cat(paste0(stns_loop_var[i], "\n"))
-#'
-#'   u = check_realtime_lag(PROV_TERR_STATE_LOC = stns_loop_var[i])
-#'   u$PROV_TERR_STATE_LOC = stns_loop_var[i]
-#'   lag_df = dplyr::bind_rows(lag_df, u)
-#' }
-#'
-#' total_time = Sys.time() - start_time
 #' }
 #'
 #'
@@ -69,14 +49,14 @@ check_realtime_lag <- function(STATION_NUMBER = NULL, PROV_TERR_STATE_LOC = NULL
 
   if(!is.null(STATION_NUMBER)){
     stns = STATION_NUMBER
-    choose_df = realtime_network_meta()
-    choose_df = filter(choose_df, STATION_NUMBER %in% stns)
-    choose_df = select(choose_df, STATION_NUMBER, PROV_TERR_STATE_LOC)
+    choose_df = tidyhydat::realtime_network_meta()
+    choose_df = dplyr::filter(choose_df, STATION_NUMBER %in% stns)
+    choose_df = dplyr::select(choose_df, STATION_NUMBER, PROV_TERR_STATE_LOC)
   }
 
   if(is.null(STATION_NUMBER) ){
-    choose_df = realtime_network_meta(PROV_TERR_STATE_LOC = PROV_TERR_STATE_LOC)
-    choose_df = select(choose_df, STATION_NUMBER, PROV_TERR_STATE_LOC)
+    choose_df = tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = PROV_TERR_STATE_LOC)
+    choose_df = dplyr::select(choose_df, STATION_NUMBER, PROV_TERR_STATE_LOC)
   }
 
   #if(is.null(STATION_NUMBER)) {

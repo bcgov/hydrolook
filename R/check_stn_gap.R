@@ -26,9 +26,11 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' check_stn_gap(STATION_NUMBER = c("07EC003","08NL071"))
 #'
 #' check_stn_gap(PROV_TERR_STATE_LOC = "PE", gap_thres = 300)
+#' }
 #'
 
 check_stn_gap <- function(STATION_NUMBER = NULL, PROV_TERR_STATE_LOC = NULL, gap_thres = 60, num_gaps = 5, tracker = FALSE) {
@@ -41,14 +43,14 @@ check_stn_gap <- function(STATION_NUMBER = NULL, PROV_TERR_STATE_LOC = NULL, gap
 
   ## If station is omitted
   if(is.null(stations)){
-    allstations = tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = prov)
-    loop_stations = allstations$STATION_NUMBER
+    allstations_list = tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = prov)
+    loop_stations = allstations_list$STATION_NUMBER
   }
 
   ## If prov is omitted
   if(is.null(prov)){
   loop_stations = stations
-  allstations = tibble(STATION_NUMBER = stations)
+  allstations_list = tibble(STATION_NUMBER = stations)
   }
 
 
@@ -130,7 +132,7 @@ check_stn_gap <- function(STATION_NUMBER = NULL, PROV_TERR_STATE_LOC = NULL, gap
   ## If so join with original allstations dataframe for a nice output
   if (!is.null(df)) {
     df$STATION_NUMBER = as.character(df$STATION_NUMBER)
-    df = dplyr::right_join(allstations, df, by = c("STATION_NUMBER"))
+    df = dplyr::right_join(allstations_list, df, by = c("STATION_NUMBER"))
     df$TIMEZONE <- NULL ## don't need the timezone column
     df$PROV_TERR_STATE_LOC <- NULL ## don't need the prov_terr_loc column
 

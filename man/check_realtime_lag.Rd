@@ -30,31 +30,11 @@ the time delay for the network from data acquisition to data upload.
 Check lag of real time stations using most recent observations and modification date of most recent file.
 }
 \examples{
+\donttest{
 check_realtime_lag(STATION_NUMBER = c("08NL071","05QB002"))
 
 ## To check all stations in PEI:
 check_realtime_lag(PROV_TERR_STATE_LOC = "PE")
-
-\dontrun{
-
-start_time = Sys.time()
-## Download all stations
-stns <- tidyhydat::download_network(PROV_TERR_STATE_LOC = "ALL")
-
-## Create a vector of all PROV_TERR_STATE_LOC values
-stns_loop_var <- unique(stns$PROV_TERR_STATE_LOC)
-
-#stns_loop_var <- "PE"
-lag_df <- c()
-for (i in 1:length(stns_loop_var)) {
-  cat(paste0(stns_loop_var[i], "\\n"))
-
-  u = check_realtime_lag(PROV_TERR_STATE_LOC = stns_loop_var[i])
-  u$PROV_TERR_STATE_LOC = stns_loop_var[i]
-  lag_df = dplyr::bind_rows(lag_df, u)
-}
-
-total_time = Sys.time() - start_time
 }
 
 

@@ -27,8 +27,10 @@ Check all realtime hydrometric stations in the Federal-Provincial network that e
 \code{PROV_TERR_STATE_LOC} must both be supplied.
 }
 \examples{
+\donttest{
 check_stn_variability(STATION_NUMBER = c("07FC001","08NL071"))
 
 check_stn_variability(PROV_TERR_STATE_LOC = "PE", gap_thres = 300)
+}
 
 }
