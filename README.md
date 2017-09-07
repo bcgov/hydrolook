@@ -1,6 +1,11 @@
 <a rel="Exploration" href="https://github.com/BCDevExchange/docs/blob/master/discussion/projectstates.md"><img alt="Being designed and built, but in the lab. May change, disappear, or be buggy." style="border-width:0" src="https://assets.bcdevexchange.org/images/badges/exploration.svg" title="Being designed and built, but in the lab. May change, disappear, or be buggy." /></a>
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+Warning
+=======
+
+The project is under active development and breaking changes will be made.
+
 hydrolook
 =========
 
@@ -14,7 +19,6 @@ To install the `hydrolook` package, you need to install the devtools package the
 ``` r
 install.packages("devtools")
 devtools::install_github("bcgov/hydrolook")
-devtools::install_github("bcgov/tidyhydat")
 ```
 
 Then to load the package you need to use the library command. When you install hydrolook, several other packages will be installed as well. One of those packages, `dplyr`, is useful for data manipulations and is used regularly here. Even though `dplyr` is installed alongside `hydrolook`, you must still load it explicitly.
@@ -47,8 +51,6 @@ Example
 This is a basic example of `hydrolook` usage. Reports are written in rmarkdown format and are generated using `generate_report()`. For example, if we wanted to generate the Net\_diag report we could use the following command:
 
 ``` r
-generate_report(report_name = "Net_diag") 
-
 generate_report(report_name = "Realtime_lag")
 
 station_report(STATION_NUMBER = "08MF005", PROV_TERR_STATE_LOC = "BC")
@@ -83,6 +85,8 @@ total_time = Sys.time() - start_time
 Then you can plot the results across jurisdictions
 
 ``` r
+library(ggplot2)
+
 lag_df %>%
   mutate(time_lag_h = as.double(time_lag, units= "hours")) %>%
   full_join(tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = "ALL"), 
