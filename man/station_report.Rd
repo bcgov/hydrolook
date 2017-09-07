@@ -14,3 +14,10 @@ station_report(STATION_NUMBER, PROV_TERR_STATE_LOC)
 \description{
 Commands to generate reports
 }
+\examples{
+\donttest{
+station_report(STATION_NUMBER = "08MF005", PROV_TERR_STATE_LOC = "BC")
+}
+
+
+}

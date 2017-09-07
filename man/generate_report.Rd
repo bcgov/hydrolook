@@ -4,21 +4,24 @@
 \alias{generate_report}
 \title{Generate diagnostic report}
 \usage{
-generate_report(report_name)
+generate_report(report_name, output_type = "pdf", province = "BC")
 }
 \arguments{
 \item{report_name}{Report to generate. Options:
 \itemize{
-\item Net_diag
+\item Net_diag (not currently implemented)
 \item Realtime_lag
 }}
+
+\item{output_type}{the type of file to be outputted. Currently html and pdf are supported. defaults to pdf}
+
+\item{province}{Province to be surveyed. Defaults to BC.}
 }
 \description{
 run this command to render the Net_diag report. The reports are then outputted to the report folder
 }
 \examples{
 \dontrun{
-generate_report(report_name = "Net_diag")
-generate_report(report_name = "Realtime_lag")
+generate_report(report_name = "Realtime_lag", output_type = "pdf", province = "PE")
 }
 }

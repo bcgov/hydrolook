@@ -18,8 +18,10 @@
 #'
 #' @export
 #'
-#' @example
-#' \donttest{station_report(STATION_NUMBER = "08MF005", PROV_TERR_STATE_LOC = "BC")}
+#' @examples
+#' \donttest{
+#' station_report(STATION_NUMBER = "08MF005", PROV_TERR_STATE_LOC = "BC")
+#' }
 #'
 #'
 station_report = function(STATION_NUMBER, PROV_TERR_STATE_LOC){
