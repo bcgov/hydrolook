@@ -161,7 +161,7 @@ not_updating <- bc_lag %>%
   filter(time_obs < Sys.time() - (24*60*60)) %>%
   left_join(bcstations, by = c("STATION_NUMBER")) %>%
   select(STATION_NUMBER, STATION_NAME, time_obs) %>%
-  arrange(time_lag)
+  arrange(time_obs)
 
 if (nrow(not_updating) == 0){
   cat("All stations have updated measurements taken within the last 24 hours")
