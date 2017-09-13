@@ -1,11 +1,31 @@
 ---
-title: "BC Fed-Prov Hydrometric Network Diagnostic"
-author: "Sam Albers"
+title: "Fed-Prov Hydrometric Network Diagnostic"
+author: "hydrolook package"
 date: "Generated on: `r Sys.Date()` "
 output:
+  pdf_document:
+    toc: true
+    fig_caption: yes
   html_document:
     toc: true
     fig_caption: yes
+params:
+  table_format:
+    value: latex
+  prov:
+    value: PE
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage[table]{xcolor}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
 ---
 
 ```{r setup, include=FALSE}
