@@ -17,9 +17,9 @@ Imports:
   dplyr,
   knitr,
   rmarkdown,
-  rvest
+  rvest,
+  kableExtra
 Remotes:
-  bcgov/tidyhydat,
-  haozhu233/kableExtra
+  bcgov/tidyhydat
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr

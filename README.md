@@ -17,8 +17,8 @@ Installation
 To install the `hydrolook` package, you need to install the devtools package then both the `hydrolook` and `tidyhydat` package
 
 ``` r
-install.packages("devtools")
-devtools::install_github("bcgov/hydrolook")
+install.packages("remotes")
+remotes::install_github("bcgov/hydrolook")
 ```
 
 Then to load the package you need to use the library command. When you install hydrolook, several other packages will be installed as well. One of those packages, `dplyr`, is useful for data manipulations and is used regularly here. Even though `dplyr` is installed alongside `hydrolook`, you must still load it explicitly.
@@ -31,6 +31,9 @@ library(dplyr)
 #> The following objects are masked from 'package:stats':
 #> 
 #>     filter, lag
+#> The following object is masked from 'package:testthat':
+#> 
+#>     matches
 #> The following objects are masked from 'package:base':
 #> 
 #>     intersect, setdiff, setequal, union
