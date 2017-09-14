@@ -4,7 +4,8 @@
 \alias{station_report}
 \title{Station report generator}
 \usage{
-station_report(STATION_NUMBER, PROV_TERR_STATE_LOC)
+station_report(output_type = "pdf", STATION_NUMBER = NULL,
+  PROV_TERR_STATE_LOC = NULL)
 }
 \arguments{
 \item{STATION_NUMBER}{Water Survey of Canada station number. No default.}

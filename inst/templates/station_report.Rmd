@@ -1,19 +1,37 @@
 ---
-title: "Station Report"
-author: "Sam Albers"
-date: "August 14, 2017"
-output: html_document
+output:
+  pdf_document:
+    pandoc_args: [
+      "-V", "classoption=twocolumn"
+    ]
+    fig_caption: yes
+  html_document:
+    fig_caption: yes
+geometry: margin=0.5in
 params:
-  STATION_NUMBER:
+  table_format:
+    value: latex
+  prov:
+    value: BC
+  stns:
     value: 08MF005
-  PROV_TERR_STATE_LOC:
-    value: BC  
-  start_date: !r as.Date("2015-01-01")
-  end_date: !r as.POSIXct("2015-01-01 12:30:00")
-vignette: >
-  %\VignetteIndexEntry{Vignette Title}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+  start_date: 
+    value: !r as.Date("2015-01-01")
+  end_date:
+    value: !r as.POSIXct("2015-01-01 12:30:00")
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage[table]{xcolor}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \pagenumbering{gobble}
 ---
 
 ```{r setup, include=FALSE}
@@ -22,48 +40,85 @@ library(tidyhydat)
 library(tidyverse)
 library(lubridate)
 
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.path = "./")
 
+## For testing
+#params <- tibble(stns = "08EB005")
 
-knitr::opts_chunk$set(echo = TRUE)
+## Create station header
+stn_header <- allstations %>%
+  filter(STATION_NUMBER == params$stns)
 ```
 
-## R Markdown
-
-
-```{r}
-params$STATION_NUMBER
-params$PROV_TERR_STATE_LOC
-params$start_date
+```{r results='asis'}
+cat("#",stn_header$STATION_NAME,"-",stn_header$STATION_NUMBER, "\n")
 ```
 
+## Current
 ```{r}
-DLY_FLOWS(STATION_NUMBER = params$STATION_NUMBER, 
-          PROV_TERR_STATE_LOC = params$PROV_TERR_STATE_LOC,
-          hydat_path = "H:/Hydat.sqlite3")
-```
-
-## Last thirty days
-```{r}
-HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = "08MF005", PROV_TERR_STATE_LOC = "BC", hydat_path = "H:/Hydat.sqlite3") %>%
-  mutate(Date = ymd(paste0(year(Sys.Date()),month(Date),"-",day(Date)))) %>%
-  filter(Date >= Sys.Date()-30 & Date <= Sys.Date())
-
-
-
-#rl_data = download_realtime_dd(STATION_NUMBER = params$STATION_NUMBER, PROV_TERR_STATE_LOC = params$PROV_TERR_STATE_LOC)
-rl_data = download_realtime_dd(STATION_NUMBER = "08MF005", PROV_TERR_STATE_LOC = "BC")
+rl_data = download_realtime_dd(STATION_NUMBER = params$stns)
 
 rl_data_day <- rl_data %>%
   padr::thicken("day") %>%
   group_by(Date_day, STATION_NUMBER) %>%
   summarise(Value = mean(Value, na.rm = TRUE)) %>%
-  filter(Date_day >= (Sys.Date()-30))
+  filter(Date_day >= (Sys.Date()-30)) 
 
+rl_data_day %>%
+  ggplot(aes(x = Date_day, y = Value)) +
+  geom_line() +
+  geom_point()
+```
+
+## Hist Hydro
+```{r}
+
+hist_rl_dist <- HIST_FLOW %>%
+  filter(!(month(Date)==2 & day(Date)==29)) %>%
+  mutate(Date2 = ymd(paste0(year(Sys.Date()), "-", month(Date), "-",day(Date)))) %>%
+  filter(Date2 <= max(rl_data_day$Date_day) & Date2 >= min(rl_data_day$Date_day)) %>%
+  mutate(Year = year(Date))
+
+
+hist_rl_dist %>%
+  ggplot() +
+  geom_line(aes(x = Date2, y = Value, colour = Year, group = Year)) +
+  geom_line(data = rl_data_day, aes(x = Date_day, Value), colour = "red") +
+  scale_colour_viridis_c() +
+  theme_minimal()
+  
+```
+
+## Percentiles
+```{r}
+#HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
+#
+#hist_rl_dist <- HIST_FLOW %>%
+#  #filter(year(Date) >= 2005) %>%
+#  filter(!(month(Date)==2 & day(Date)==29)) %>%
+#  mutate(Date2 = ymd(paste0(year(Sys.Date()), "-", month(Date), "-",day(Date)))) %>%
+#  select(-Date) %>%
+#  group_by(Date2, STATION_NUMBER, Parameter) %>%
+#  nest() %>%
+#  right_join(rl_data_day, 
+#             by = c("STATION_NUMBER", "Date2" = "Date_day")) %>%
+#  mutate(prctile = map2_dbl(data, Value, ~ecdf(.x$Value)(.y))) %>%
+#  View()
+#  left_join(bcstations, by = c("STATION_NUMBER")) 
+
+```
+
+## Hist
+
+```{r}
+HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
 
 HIST_FLOW %>%
   ggplot() +
   geom_histogram(aes(x = Value)) +
-  geom_vline(data = rl_data, aes(xintercept = Value, colour = Date)) +
+  #geom_vline(data = rl_data, aes(xintercept = Value, colour = Date)) +
   theme_minimal()
-
 ```
+
+## Some writing
+ggplot() initializes a ggplot object. It can be used to declare the input data frame for a graphic and to specify the set of plot aesthetics intended to be common throughout all subsequent layers unless specifically overridden. ggplot() initializes a ggplot object. It can be used to declare the input data frame for a graphic and to specify the set of plot aesthetics intended to be common throughout all subsequent layers unless specifically overridden.ggplot() initializes a ggplot object. It can be used to declare the input data frame for a graphic and to specify the set of plot aesthetics intended to be common throughout all subsequent layers unless specifically overridden.ggplot() initializes a ggplot object. It can be used to declare the input data frame for a graphic and to specify the set of plot aesthetics intended to be common throughout all subsequent layers unless specifically overridden.ggplot() initializes a ggplot object. It can be used to declare the input data frame for a graphic and to specify the set of plot aesthetics intended to be common throughout all subsequent layers unless specifically overridden.
