@@ -1,4 +1,4 @@
-<a rel="Exploration" href="https://github.com/BCDevExchange/docs/blob/master/discussion/projectstates.md"><img alt="Being designed and built, but in the lab. May change, disappear, or be buggy." style="border-width:0" src="https://assets.bcdevexchange.org/images/badges/exploration.svg" title="Being designed and built, but in the lab. May change, disappear, or be buggy." /></a>
+<a rel="Inspiration" href="https://github.com/BCDevExchange/docs/blob/master/discussion/projectstates.md"><img alt="An idea being explored and shaped. Open for discussion, but may never go anywhere." style="border-width:0" src="https://assets.bcdevexchange.org/images/badges/inspiration.svg" title="An idea being explored and shaped. Open for discussion, but may never go anywhere." /></a>
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 Warning
@@ -54,59 +54,9 @@ Example
 This is a basic example of `hydrolook` usage. Reports are written in rmarkdown format and are generated using `generate_report()`. For example, if we wanted to generate the Net\_diag report we could use the following command:
 
 ``` r
-generate_report(report_name = "Realtime_lag")
+realtime_lag_report(output_type = "pdf", province = "PE")
 
-station_report(STATION_NUMBER = "08MF005", PROV_TERR_STATE_LOC = "BC")
-```
-
-Check stn\_gap of all stations across Canada
---------------------------------------------
-
-This will take about 20 minutes to run. This illustrates how `hydrolook` functionality can be extended.
-
-``` r
-start_time = Sys.time()
-## Download all stations
-stns <- tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = "ALL")
-
-## Create a vector of all PROV_TERR_STATE_LOC values
-stns_loop_var <- unique(stns$PROV_TERR_STATE_LOC)
-
-#stns_loop_var <- "PE"
-lag_df <- c()
-for (i in 1:length(stns_loop_var)) {
-  cat(paste0(stns_loop_var[i], "\n"))
-  
-  u = check_realtime_lag(PROV_TERR_STATE_LOC = stns_loop_var[i])
-  u$PROV_TERR_STATE_LOC = stns_loop_var[i]
-  lag_df = dplyr::bind_rows(lag_df, u)
-}
-
-total_time = Sys.time() - start_time
-```
-
-Then you can plot the results across jurisdictions
-
-``` r
-library(ggplot2)
-
-lag_df %>%
-  mutate(time_lag_h = as.double(time_lag, units= "hours")) %>%
-  full_join(tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = "ALL"), 
-            by = c("STATION_NUMBER", "PROV_TERR_STATE_LOC")) %>%
-  ggplot(aes(x = LONGITUDE, y = time_lag_h, colour = PROV_TERR_STATE_LOC)) +
-  geom_point() +
-  facet_wrap(~PROV_TERR_STATE_LOC, scales = "free_x")
-
-
-lag_df %>%
-  mutate(time_lag_h = as.double(time_lag, units= "hours")) %>%
-  full_join(tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = "ALL"), 
-            by = c("STATION_NUMBER", "PROV_TERR_STATE_LOC")) %>%
-  ggplot(aes(x  = time_lag_h)) +
-  geom_histogram(binwidth = 1) +
-  geom_rug() +
-  facet_wrap(~PROV_TERR_STATE_LOC)
+station_report(output_type = "pdf", STATION_NUMBER = "08MF005")
 ```
 
 Project Status
