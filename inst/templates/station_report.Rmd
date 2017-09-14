@@ -1,19 +1,38 @@
 ---
-title: "Station Report"
-author: "Sam Albers"
-date: "August 14, 2017"
-output: html_document
+title: "Integrate Network Station Report"
+author: "hydrolook package"
+date: "Generated on: `r Sys.Date()` "
+output:
+  pdf_document:
+    toc: true
+    fig_caption: yes
+  html_document:
+    toc: true
+    fig_caption: yes
 params:
-  STATION_NUMBER:
+  table_format:
+    value: latex
+  prov:
+    value: PE
+  stns:
     value: 08MF005
-  PROV_TERR_STATE_LOC:
-    value: BC  
-  start_date: !r as.Date("2015-01-01")
-  end_date: !r as.POSIXct("2015-01-01 12:30:00")
-vignette: >
-  %\VignetteIndexEntry{Vignette Title}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+  start_date: 
+    value: !r as.Date("2015-01-01")
+  end_date:
+    value: !r as.POSIXct("2015-01-01 12:30:00")
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage[table]{xcolor}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+---
 ---
 
 ```{r setup, include=FALSE}
@@ -24,34 +43,34 @@ library(lubridate)
 
 
 
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.path = "./")
 ```
 
 ## R Markdown
 
 
 ```{r}
-params$STATION_NUMBER
-params$PROV_TERR_STATE_LOC
+params$stns
+params$prov
 params$start_date
+params$end_date
+params$table_format
 ```
 
 ```{r}
-DLY_FLOWS(STATION_NUMBER = params$STATION_NUMBER, 
-          PROV_TERR_STATE_LOC = params$PROV_TERR_STATE_LOC,
-          hydat_path = "H:/Hydat.sqlite3")
+HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
 ```
 
 ## Last thirty days
 ```{r}
-HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = "08MF005", PROV_TERR_STATE_LOC = "BC", hydat_path = "H:/Hydat.sqlite3") %>%
-  mutate(Date = ymd(paste0(year(Sys.Date()),month(Date),"-",day(Date)))) %>%
-  filter(Date >= Sys.Date()-30 & Date <= Sys.Date())
+#HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns) %>%
+#  mutate(Date = ymd(paste0(year(Sys.Date()),month(Date),"-",day(Date)))) %>%
+#  filter(Date >= Sys.Date()-30 & Date <= Sys.Date())
 
 
 
 #rl_data = download_realtime_dd(STATION_NUMBER = params$STATION_NUMBER, PROV_TERR_STATE_LOC = params$PROV_TERR_STATE_LOC)
-rl_data = download_realtime_dd(STATION_NUMBER = "08MF005", PROV_TERR_STATE_LOC = "BC")
+rl_data = download_realtime_dd(STATION_NUMBER = params$stns)
 
 rl_data_day <- rl_data %>%
   padr::thicken("day") %>%

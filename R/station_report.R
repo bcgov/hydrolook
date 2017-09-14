@@ -20,16 +20,23 @@
 #'
 #' @examples
 #' \donttest{
-#' station_report(STATION_NUMBER = "08MF005", PROV_TERR_STATE_LOC = "BC")
+#' station_report(output_type = "pdf", STATION_NUMBER = "08MF005", PROV_TERR_STATE_LOC = "BC")
 #' }
 #'
 #'
-station_report = function(STATION_NUMBER, PROV_TERR_STATE_LOC){
+station_report = function(output_type = "pdf", STATION_NUMBER = NULL, PROV_TERR_STATE_LOC = NULL){
+
+  if(!output_type %in% c("pdf","html")){
+    stop('output_type must be "pdf" or "html"')
+  }
+
   rmarkdown::render(system.file("templates", "station_report.Rmd", package="hydrolook"),
+                    output_format = paste0(output_type,"_document"),
                     params = list(
-                      STATION_NUMBER = STATION_NUMBER,
-                      PROV_TERR_STATE_LOC = PROV_TERR_STATE_LOC),
-                    output_file = paste0("STN_",STATION_NUMBER,".html"),
+                      table_format = ifelse(output_type == "pdf","latex","html"),
+                      stns = STATION_NUMBER,
+                      prov = PROV_TERR_STATE_LOC),
+                    output_file = paste0("STN_",STATION_NUMBER,"_",Sys.Date(),".",output_type),
                     output_dir = paste0("report/station_reports")
   )
 }
