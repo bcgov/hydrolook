@@ -42,6 +42,9 @@ library(lubridate)
 
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.path = "./")
 
+## For testing
+#params <- tibble(stns = "08EB005")
+
 ## Create station header
 stn_header <- allstations %>%
   filter(STATION_NUMBER == params$stns)
@@ -50,17 +53,6 @@ stn_header <- allstations %>%
 ```{r results='asis'}
 cat("#",stn_header$STATION_NAME,"-",stn_header$STATION_NUMBER, "\n")
 ```
-## Hist
-
-```{r}
-HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
-
-HIST_FLOW %>%
-  ggplot() +
-  geom_histogram(aes(x = Value)) +
-  #geom_vline(data = rl_data, aes(xintercept = Value, colour = Date)) +
-  theme_minimal()
-```
 
 ## Current
 ```{r}
@@ -78,6 +70,44 @@ rl_data_day %>%
   geom_point()
 ```
 
+## Hist Hydro
+```{r}
+
+hist_rl_dist <- HIST_FLOW %>%
+  filter(!(month(Date)==2 & day(Date)==29)) %>%
+  mutate(Date2 = ymd(paste0(year(Sys.Date()), "-", month(Date), "-",day(Date)))) %>%
+  filter(Date2 <= max(rl_data_day$Date_day) & Date2 >= min(rl_data_day$Date_day)) %>%
+  mutate(Year = year(Date))
+
+
+hist_rl_dist %>%
+  ggplot() +
+  geom_line(aes(x = Date2, y = Value, colour = Year, group = Year)) +
+  geom_line(data = rl_data_day, aes(x = Date_day, Value), colour = "red") +
+  scale_colour_viridis_c() +
+  theme_minimal()
+  
+```
+
+## Percentiles
+```{r}
+#HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
+#
+#hist_rl_dist <- HIST_FLOW %>%
+#  #filter(year(Date) >= 2005) %>%
+#  filter(!(month(Date)==2 & day(Date)==29)) %>%
+#  mutate(Date2 = ymd(paste0(year(Sys.Date()), "-", month(Date), "-",day(Date)))) %>%
+#  select(-Date) %>%
+#  group_by(Date2, STATION_NUMBER, Parameter) %>%
+#  nest() %>%
+#  right_join(rl_data_day, 
+#             by = c("STATION_NUMBER", "Date2" = "Date_day")) %>%
+#  mutate(prctile = map2_dbl(data, Value, ~ecdf(.x$Value)(.y))) %>%
+#  View()
+#  left_join(bcstations, by = c("STATION_NUMBER")) 
+
+```
+
 ## Hist
 
 ```{r}
@@ -88,22 +118,6 @@ HIST_FLOW %>%
   geom_histogram(aes(x = Value)) +
   #geom_vline(data = rl_data, aes(xintercept = Value, colour = Date)) +
   theme_minimal()
-```
-
-## Current
-```{r}
-rl_data = download_realtime_dd(STATION_NUMBER = params$stns)
-
-rl_data_day <- rl_data %>%
-  padr::thicken("day") %>%
-  group_by(Date_day, STATION_NUMBER) %>%
-  summarise(Value = mean(Value, na.rm = TRUE)) %>%
-  filter(Date_day >= (Sys.Date()-30)) 
-
-rl_data_day %>%
-  ggplot(aes(x = Date_day, y = Value)) +
-  geom_line() +
-  geom_point()
 ```
 
 ## Some writing
