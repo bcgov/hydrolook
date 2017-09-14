@@ -1,19 +1,18 @@
 ---
-title: "Integrate Network Station Report"
-author: "hydrolook package"
-date: "Generated on: `r Sys.Date()` "
 output:
   pdf_document:
-    toc: true
+    pandoc_args: [
+      "-V", "classoption=twocolumn"
+    ]
     fig_caption: yes
   html_document:
-    toc: true
     fig_caption: yes
+geometry: margin=0.5in
 params:
   table_format:
     value: latex
   prov:
-    value: PE
+    value: BC
   stns:
     value: 08MF005
   start_date: 
@@ -32,7 +31,7 @@ header-includes:
   - \usepackage{pdflscape}
   - \usepackage{tabu}
   - \usepackage{threeparttable}
----
+  - \pagenumbering{gobble}
 ---
 
 ```{r setup, include=FALSE}
@@ -41,48 +40,71 @@ library(tidyhydat)
 library(tidyverse)
 library(lubridate)
 
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.path = "./")
 
-
-knitr::opts_chunk$set(echo = TRUE, fig.path = "./")
+## Create station header
+stn_header <- allstations %>%
+  filter(STATION_NUMBER == params$stns)
 ```
 
-## R Markdown
-
-
-```{r}
-params$stns
-params$prov
-params$start_date
-params$end_date
-params$table_format
+```{r results='asis'}
+cat("#",stn_header$STATION_NAME,"-",stn_header$STATION_NUMBER, "\n")
 ```
+## Hist
 
 ```{r}
 HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
+
+HIST_FLOW %>%
+  ggplot() +
+  geom_histogram(aes(x = Value)) +
+  #geom_vline(data = rl_data, aes(xintercept = Value, colour = Date)) +
+  theme_minimal()
 ```
 
-## Last thirty days
+## Current
 ```{r}
-#HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns) %>%
-#  mutate(Date = ymd(paste0(year(Sys.Date()),month(Date),"-",day(Date)))) %>%
-#  filter(Date >= Sys.Date()-30 & Date <= Sys.Date())
-
-
-
-#rl_data = download_realtime_dd(STATION_NUMBER = params$STATION_NUMBER, PROV_TERR_STATE_LOC = params$PROV_TERR_STATE_LOC)
 rl_data = download_realtime_dd(STATION_NUMBER = params$stns)
 
 rl_data_day <- rl_data %>%
   padr::thicken("day") %>%
   group_by(Date_day, STATION_NUMBER) %>%
   summarise(Value = mean(Value, na.rm = TRUE)) %>%
-  filter(Date_day >= (Sys.Date()-30))
+  filter(Date_day >= (Sys.Date()-30)) 
 
+rl_data_day %>%
+  ggplot(aes(x = Date_day, y = Value)) +
+  geom_line() +
+  geom_point()
+```
+
+## Hist
+
+```{r}
+HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
 
 HIST_FLOW %>%
   ggplot() +
   geom_histogram(aes(x = Value)) +
-  geom_vline(data = rl_data, aes(xintercept = Value, colour = Date)) +
+  #geom_vline(data = rl_data, aes(xintercept = Value, colour = Date)) +
   theme_minimal()
-
 ```
+
+## Current
+```{r}
+rl_data = download_realtime_dd(STATION_NUMBER = params$stns)
+
+rl_data_day <- rl_data %>%
+  padr::thicken("day") %>%
+  group_by(Date_day, STATION_NUMBER) %>%
+  summarise(Value = mean(Value, na.rm = TRUE)) %>%
+  filter(Date_day >= (Sys.Date()-30)) 
+
+rl_data_day %>%
+  ggplot(aes(x = Date_day, y = Value)) +
+  geom_line() +
+  geom_point()
+```
+
+## Some writing
+ggplot() initializes a ggplot object. It can be used to declare the input data frame for a graphic and to specify the set of plot aesthetics intended to be common throughout all subsequent layers unless specifically overridden. ggplot() initializes a ggplot object. It can be used to declare the input data frame for a graphic and to specify the set of plot aesthetics intended to be common throughout all subsequent layers unless specifically overridden.ggplot() initializes a ggplot object. It can be used to declare the input data frame for a graphic and to specify the set of plot aesthetics intended to be common throughout all subsequent layers unless specifically overridden.ggplot() initializes a ggplot object. It can be used to declare the input data frame for a graphic and to specify the set of plot aesthetics intended to be common throughout all subsequent layers unless specifically overridden.ggplot() initializes a ggplot object. It can be used to declare the input data frame for a graphic and to specify the set of plot aesthetics intended to be common throughout all subsequent layers unless specifically overridden.
