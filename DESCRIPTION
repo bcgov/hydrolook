@@ -18,8 +18,10 @@ Imports:
   knitr,
   rmarkdown,
   rvest,
-  kableExtra
+  kableExtra,
+  sf
 Remotes:
   bcgov/tidyhydat
+  bcgov/bcmaps
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
