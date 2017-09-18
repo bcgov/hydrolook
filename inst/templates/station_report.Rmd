@@ -1,13 +1,12 @@
 ---
+#title: "test"
 output:
   pdf_document:
-    pandoc_args: [
-      "-V", "classoption=twocolumn"
-    ]
     fig_caption: yes
+    keep_tex: true
+    template: station_report_template.tex
   html_document:
     fig_caption: yes
-geometry: margin=0.5in
 params:
   table_format:
     value: latex
@@ -19,26 +18,32 @@ params:
     value: !r as.Date("2015-01-01")
   end_date:
     value: !r as.POSIXct("2015-01-01 12:30:00")
-header-includes:
-  - \usepackage{booktabs}
-  - \usepackage{longtable}
-  - \usepackage{array}
-  - \usepackage{multirow}
-  - \usepackage[table]{xcolor}
-  - \usepackage{wrapfig}
-  - \usepackage{float}
-  - \usepackage{colortbl}
-  - \usepackage{pdflscape}
-  - \usepackage{tabu}
-  - \usepackage{threeparttable}
-  - \pagenumbering{gobble}
+---
+
+---
+title: "`r tidyhydat::STATIONS(STATION_NUMBER = params$stns)$STATION_NAME` - `r params$stns`"
 ---
 
 ```{r setup, include=FALSE}
+# Copyright 2017 Province of British Columbia
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and limitations under the License.
+
 library(hydrolook)
 library(tidyhydat)
 library(tidyverse)
 library(lubridate)
+library(kableExtra)
+library(sf)
+library(bcmaps)
 
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.path = "./")
 
@@ -50,12 +55,15 @@ stn_header <- allstations %>%
   filter(STATION_NUMBER == params$stns)
 ```
 
-```{r results='asis'}
-cat("#",stn_header$STATION_NAME,"-",stn_header$STATION_NUMBER, "\n")
+## Information
+This is automatically generate report that provides basic information on a hydrometric station. This report was generated on 
+```{r, results='asis'}
+cat(format(Sys.Date(), '%d %B, %Y'))
 ```
+. 
 
-## Current
-```{r}
+
+```{r, data_load_in}
 rl_data = download_realtime_dd(STATION_NUMBER = params$stns)
 
 rl_data_day <- rl_data %>%
@@ -64,14 +72,74 @@ rl_data_day <- rl_data %>%
   summarise(Value = mean(Value, na.rm = TRUE)) %>%
   filter(Date_day >= (Sys.Date()-30)) 
 
+HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
+```
+
+## Station Map
+```{r, fig.width=6, fig.height=4}
+## sf-y the files from bcmaps
+wsc_drainages_sf <- sf::st_as_sf(bcmaps::wsc_drainages) 
+watercourses_5M_sf <- sf::st_as_sf(bcmaps::watercourses_5M)
+
+stns_sf <- STATIONS(STATION_NUMBER = params$stns) %>%
+  st_as_sf(., coords = c("LONGITUDE", "LATITUDE"), 
+           crs = 4326, 
+           agr = "constant") %>%
+  transform_bc_albers() 
+
+## Drainages for the stations
+plt_wsc <- wsc_drainages_sf %>%
+  st_join(stns_sf) %>%
+  filter(!is.na(STATION_NUMBER))
+
+plt_5m <- watercourses_5M_sf %>%
+  st_join(plt_wsc) %>%
+  filter(!is.na(STATION_NUMBER))
+
+ggplot() +
+  geom_sf(data = plt_wsc, aes(fill = WSCSSDA_EN), alpha = 0.6) +
+  geom_sf(data = plt_5m, aes(colour = name_en), size = 2) +
+  geom_sf(data = stns_sf) +
+  scale_colour_viridis_d() +
+  theme_minimal() +
+  labs(title = "Placeholder Map") +
+  theme(legend.position = "bottom") 
+
+
+```
+
+## Daily Summary
+```{r}
+tbl_flow <- HIST_FLOW %>%
+  filter(month(Date) %in% month(Sys.Date()-1)) %>%
+  filter(day(Date) %in% day(Sys.Date()-1)) %>%
+  bind_rows(rl_data_day %>%
+              filter(Date_day %in% (Sys.Date()-1))%>%
+              rename(Date = Date_day)) %>%
+  filter(!is.na(Value)) %>%
+  #mutate(cudf = cume_dist(Value)) %>%
+  mutate(Rank = min_rank(Value)) %>%
+  filter(year(Date) == 2017) %>%
+  select(Date, Value, Symbol, Rank)
+
+kable(tbl_flow, format = "latex", booktabs = T) %>%
+  kable_styling(latex_options = c("HOLD_position"))
+
+```
+
+## Last Thirty Days
+```{r}
 rl_data_day %>%
   ggplot(aes(x = Date_day, y = Value)) +
   geom_line() +
-  geom_point()
+  geom_point() +
+  theme_minimal()
+  
 ```
 
-## Hist Hydro
+## Historical Hydrographs
 ```{r}
+HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
 
 hist_rl_dist <- HIST_FLOW %>%
   filter(!(month(Date)==2 & day(Date)==29)) %>%
@@ -89,36 +157,18 @@ hist_rl_dist %>%
   
 ```
 
-## Percentiles
-```{r}
-#HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
-#
-#hist_rl_dist <- HIST_FLOW %>%
-#  #filter(year(Date) >= 2005) %>%
-#  filter(!(month(Date)==2 & day(Date)==29)) %>%
-#  mutate(Date2 = ymd(paste0(year(Sys.Date()), "-", month(Date), "-",day(Date)))) %>%
-#  select(-Date) %>%
-#  group_by(Date2, STATION_NUMBER, Parameter) %>%
-#  nest() %>%
-#  right_join(rl_data_day, 
-#             by = c("STATION_NUMBER", "Date2" = "Date_day")) %>%
-#  mutate(prctile = map2_dbl(data, Value, ~ecdf(.x$Value)(.y))) %>%
-#  View()
-#  left_join(bcstations, by = c("STATION_NUMBER")) 
 
-```
-
-## Hist
+## Historical Distributions from last thirty days
 
 ```{r}
 HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
 
 HIST_FLOW %>%
+  filter(month(Date) %in% month(seq.Date(from = (Sys.Date()-30), to = Sys.Date(), by = "day"))) %>%
+  filter(day(Date) %in% day(seq.Date(from = (Sys.Date()-30), to = Sys.Date(), by = "day"))) %>%
   ggplot() +
   geom_histogram(aes(x = Value)) +
-  #geom_vline(data = rl_data, aes(xintercept = Value, colour = Date)) +
+  geom_rug() +
   theme_minimal()
 ```
 
-## Some writing
-ggplot() initializes a ggplot object. It can be used to declare the input data frame for a graphic and to specify the set of plot aesthetics intended to be common throughout all subsequent layers unless specifically overridden. ggplot() initializes a ggplot object. It can be used to declare the input data frame for a graphic and to specify the set of plot aesthetics intended to be common throughout all subsequent layers unless specifically overridden.ggplot() initializes a ggplot object. It can be used to declare the input data frame for a graphic and to specify the set of plot aesthetics intended to be common throughout all subsequent layers unless specifically overridden.ggplot() initializes a ggplot object. It can be used to declare the input data frame for a graphic and to specify the set of plot aesthetics intended to be common throughout all subsequent layers unless specifically overridden.ggplot() initializes a ggplot object. It can be used to declare the input data frame for a graphic and to specify the set of plot aesthetics intended to be common throughout all subsequent layers unless specifically overridden.
