@@ -19,7 +19,8 @@ Imports:
   rmarkdown,
   rvest,
   kableExtra,
-  sf
+  sf,
+  cowplot
 Remotes:
   bcgov/tidyhydat
   bcgov/bcmaps

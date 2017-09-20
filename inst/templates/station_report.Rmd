@@ -3,7 +3,6 @@
 output:
   pdf_document:
     fig_caption: yes
-    keep_tex: true
     template: station_report_template.tex
   html_document:
     fig_caption: yes
@@ -42,13 +41,16 @@ library(tidyhydat)
 library(tidyverse)
 library(lubridate)
 library(kableExtra)
+library(knitr)
 library(sf)
 library(bcmaps)
+library(cowplot)
+library(zoo)
 
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.path = "./")
 
 ## For testing
-#params <- tibble(stns = "08EB005")
+#params <- tibble(stns = "08MF005")
 
 ## Create station header
 stn_header <- allstations %>%
@@ -56,7 +58,7 @@ stn_header <- allstations %>%
 ```
 
 ## Information
-This is automatically generate report that provides basic information on a hydrometric station. This report was generated on 
+This is automatically generated report that provides basic information on a hydrometric station. This report was generated on 
 ```{r, results='asis'}
 cat(format(Sys.Date(), '%d %B, %Y'))
 ```
@@ -75,11 +77,42 @@ rl_data_day <- rl_data %>%
 HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
 ```
 
-## Station Map
-```{r, fig.width=6, fig.height=4}
+
+## Daily Summary
+```{r}
+tbl_flow <- HIST_FLOW %>%
+  mutate(Q7_day = rollapply(Value, 7, mean, na.rm = TRUE, partial = TRUE, fill = NA, align = "right")) %>% 
+  filter(month(Date) %in% month(Sys.Date()-1)) %>%
+  filter(day(Date) %in% day(Sys.Date()-1)) %>%
+  bind_rows(rl_data_day %>%
+              ungroup() %>%
+              mutate(Q7_day = rollmean(Value, 7, fill = NA, align = "right")) %>%
+              filter(Date_day %in% (Sys.Date()-1)) %>%
+              rename(Date = Date_day) 
+              ) %>% 
+  filter(!is.na(Value)) %>%
+  mutate(Rank = min_rank(Value)) %>%
+  mutate(Rank7day = min_rank(Q7_day)) %>%
+  filter(year(Date) == 2017) %>%
+  select(Date, Value, Rank, Q7_day, Rank7day, Symbol)
+
+colnames(tbl_flow) <- c("Date","Daily Discharge","Daily Rank", "7 Day Discharge", "7 Day Rank","Symbol")
+
+kable(tbl_flow, format = "latex", booktabs = T) %>%
+  kable_styling(latex_options = c("HOLD_position")) %>%
+  add_footnote(c("All discharge presented in m^3/s","7 day rolling average includes previous 7 days"), notation = "alphabet")
+
+```
+
+
+
+```{r}
 ## sf-y the files from bcmaps
 wsc_drainages_sf <- sf::st_as_sf(bcmaps::wsc_drainages) 
 watercourses_5M_sf <- sf::st_as_sf(bcmaps::watercourses_5M)
+nr_regions_sf <- sf::st_as_sf(bcmaps::nr_regions)
+bc_bound_hres_sf <- sf::st_as_sf(bcmaps::bc_bound_hres) 
+
 
 stns_sf <- STATIONS(STATION_NUMBER = params$stns) %>%
   st_as_sf(., coords = c("LONGITUDE", "LATITUDE"), 
@@ -92,52 +125,46 @@ plt_wsc <- wsc_drainages_sf %>%
   st_join(stns_sf) %>%
   filter(!is.na(STATION_NUMBER))
 
+##Rivers
 plt_5m <- watercourses_5M_sf %>%
   st_join(plt_wsc) %>%
   filter(!is.na(STATION_NUMBER))
 
-ggplot() +
-  geom_sf(data = plt_wsc, aes(fill = WSCSSDA_EN), alpha = 0.6) +
+## Larger watershed
+plt_nr <- nr_regions_sf%>%
+  st_join(plt_wsc) %>%
+  filter(!is.na(WSCMDA_EN)) %>%
+  mutate(REG_NAME = gsub("Natural Resource Region","", REG_NAME))
+
+## bc outline
+#bc_sf <-  
+
+
+
+stn_map <- ggplot() +
+  geom_sf(data = plt_wsc, aes(fill = WSCSSDA_EN), alpha = 0.8) +
+  geom_sf(data = plt_nr, aes(fill = REG_NAME), alpha = 0.2) +
   geom_sf(data = plt_5m, aes(colour = name_en), size = 2) +
+  #geom_sf(data = bc_sf) +
   geom_sf(data = stns_sf) +
-  scale_colour_viridis_d() +
+  scale_colour_viridis_d(name = "River Feature") +
+  scale_fill_discrete(name = "Watershed/ NR District") +
   theme_minimal() +
-  labs(title = "Placeholder Map") +
-  theme(legend.position = "bottom") 
+  labs(title = "Station Map") 
 
 
 ```
 
-## Daily Summary
 ```{r}
-tbl_flow <- HIST_FLOW %>%
-  filter(month(Date) %in% month(Sys.Date()-1)) %>%
-  filter(day(Date) %in% day(Sys.Date()-1)) %>%
-  bind_rows(rl_data_day %>%
-              filter(Date_day %in% (Sys.Date()-1))%>%
-              rename(Date = Date_day)) %>%
-  filter(!is.na(Value)) %>%
-  #mutate(cudf = cume_dist(Value)) %>%
-  mutate(Rank = min_rank(Value)) %>%
-  filter(year(Date) == 2017) %>%
-  select(Date, Value, Symbol, Rank)
-
-kable(tbl_flow, format = "latex", booktabs = T) %>%
-  kable_styling(latex_options = c("HOLD_position"))
-
-```
-
-## Last Thirty Days
-```{r}
-rl_data_day %>%
+rl_plt <- rl_data_day %>%
   ggplot(aes(x = Date_day, y = Value)) +
   geom_line() +
   geom_point() +
-  theme_minimal()
-  
+  theme_minimal() +
+  labs(title = "Last Thirty Days")
+
 ```
 
-## Historical Hydrographs
 ```{r}
 HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
 
@@ -148,27 +175,33 @@ hist_rl_dist <- HIST_FLOW %>%
   mutate(Year = year(Date))
 
 
-hist_rl_dist %>%
+hist_plt <- hist_rl_dist %>%
   ggplot() +
   geom_line(aes(x = Date2, y = Value, colour = Year, group = Year)) +
   geom_line(data = rl_data_day, aes(x = Date_day, Value), colour = "red") +
   scale_colour_viridis_c() +
-  theme_minimal()
+  theme_minimal() +
+  labs(title = "Historical Hydrographs")
   
 ```
 
 
-## Historical Distributions from last thirty days
 
 ```{r}
 HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
 
-HIST_FLOW %>%
+hist_dist_plt <- HIST_FLOW %>%
   filter(month(Date) %in% month(seq.Date(from = (Sys.Date()-30), to = Sys.Date(), by = "day"))) %>%
   filter(day(Date) %in% day(seq.Date(from = (Sys.Date()-30), to = Sys.Date(), by = "day"))) %>%
   ggplot() +
   geom_histogram(aes(x = Value)) +
   geom_rug() +
-  theme_minimal()
+  theme_minimal() +
+  labs(title = "Historical Distributions from last thirty days")
 ```
 
+## Plot Summaries
+
+```{r plot, fig.width = 10, fig.height=8}
+plot_grid(stn_map, rl_plt, hist_plt, hist_dist_plt)
+```

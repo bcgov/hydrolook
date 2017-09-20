@@ -22,6 +22,7 @@
 #' \donttest{
 #' station_report(output_type = "pdf", STATION_NUMBER = "08EB005", PROV_TERR_STATE_LOC = "BC")
 #' station_report(output_type = "pdf", STATION_NUMBER = "08MF005", PROV_TERR_STATE_LOC = "BC")
+#' station_report(output_type = "pdf", STATION_NUMBER = "07EA005", PROV_TERR_STATE_LOC = "BC")
 #' }
 #'
 #'
