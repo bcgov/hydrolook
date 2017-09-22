@@ -11,13 +11,12 @@
 # See the License for the specific language governing permissions and limitations under the License.
 
 
-
-#'
 #' @title Generate diagnostic report
 #'
 #' @inheritParams net_diag_report
 #'
 #' @description run this command to render the Net_diag report. The reports are then outputted to the report folder
+#'
 #' @examples
 #' \dontrun{
 #' realtime_lag_report(output_type = "pdf", province = "PE")

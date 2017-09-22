@@ -14,29 +14,19 @@ The hydrolook package has been developed to provide a series semi-automated repo
 Installation
 ------------
 
-To install the `hydrolook` package, you need to install the devtools package then both the `hydrolook` and `tidyhydat` package
+To install the `hydrolook` package, you need to install the remotes package then both the `hydrolook`, `bcmaps` and `tidyhydat` packages
 
 ``` r
 install.packages("remotes")
 remotes::install_github("bcgov/hydrolook")
+remotes::install_github("bcgov/tidyhydat")
+remotes::install_github("bcgov/bcmaps")
 ```
 
-Then to load the package you need to use the library command. When you install hydrolook, several other packages will be installed as well. One of those packages, `dplyr`, is useful for data manipulations and is used regularly here. Even though `dplyr` is installed alongside `hydrolook`, you must still load it explicitly.
+Then to load the package you need to use the library command. When you install hydrolook, several other packages will be installed as well. In fact `hydrolook` is fairly package intensive project. Several additional packages are downloaded.
 
 ``` r
 library(hydrolook)
-library(dplyr)
-#> 
-#> Attaching package: 'dplyr'
-#> The following objects are masked from 'package:stats':
-#> 
-#>     filter, lag
-#> The following object is masked from 'package:testthat':
-#> 
-#>     matches
-#> The following objects are masked from 'package:base':
-#> 
-#>     intersect, setdiff, setequal, union
 ```
 
 HYDAT download
@@ -54,9 +44,11 @@ Example
 This is a basic example of `hydrolook` usage. Reports are written in rmarkdown format and are generated using `generate_report()`. For example, if we wanted to generate the Net\_diag report we could use the following command:
 
 ``` r
-realtime_lag_report(output_type = "pdf", province = "PE")
+realtime_lag_report(output_type = "pdf", PROV_TERR_STATE_LOC = "AB")
 
 station_report(output_type = "pdf", STATION_NUMBER = "08MF005")
+
+net_diag_report(output_type = "pdf", PROV_TERR_STATE_LOC = "PE")
 ```
 
 Project Status
