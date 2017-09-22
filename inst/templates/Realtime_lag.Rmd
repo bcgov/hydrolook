@@ -131,7 +131,7 @@ bc_lag %>%
 ```{r}
 big_lags <- bc_lag %>%
   filter(time_lag_num > 10) %>%
-  left_join(bcstations, by = c("STATION_NUMBER")) %>%
+  left_join(allstations, by = c("STATION_NUMBER")) %>%
   select(STATION_NUMBER, STATION_NAME, time_obs, time_mod, time_lag) %>%
   arrange(time_lag)
 
@@ -159,7 +159,7 @@ print(Sys.time())
 
 not_updating <- bc_lag %>%
   filter(time_obs < Sys.time() - (24*60*60)) %>%
-  left_join(bcstations, by = c("STATION_NUMBER")) %>%
+  left_join(allstations, by = c("STATION_NUMBER")) %>%
   select(STATION_NUMBER, STATION_NAME, time_obs) %>%
   arrange(time_obs)
 
