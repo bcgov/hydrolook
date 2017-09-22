@@ -9,8 +9,6 @@ output:
 params:
   table_format:
     value: latex
-  prov:
-    value: BC
   stns:
     value: 08MF005
   start_date: 

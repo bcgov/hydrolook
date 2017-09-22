@@ -13,20 +13,20 @@
 #' @title Station report generator
 #' @description Commands to generate reports
 #'
+#' @param output_type the type of file to be outputted. Currently html and pdf are supported. defaults to pdf
 #' @param STATION_NUMBER Water Survey of Canada station number. No default.
-#' @param PROV_TERR_STATE_LOC Province, state or territory. See also for argument options.
-#'
+#' @family report_generators
 #' @export
 #'
 #' @examples
 #' \donttest{
-#' station_report(output_type = "pdf", STATION_NUMBER = "08EB005", PROV_TERR_STATE_LOC = "BC")
-#' station_report(output_type = "pdf", STATION_NUMBER = "08MF005", PROV_TERR_STATE_LOC = "BC")
-#' station_report(output_type = "pdf", STATION_NUMBER = "07EA005", PROV_TERR_STATE_LOC = "BC")
+#' station_report(output_type = "pdf", STATION_NUMBER = "08EB005")
+#' station_report(output_type = "pdf", STATION_NUMBER = "08MF005")
+#' station_report(output_type = "pdf", STATION_NUMBER = "07EA005")
 #' }
 #'
 #'
-station_report = function(output_type = "pdf", STATION_NUMBER = NULL, PROV_TERR_STATE_LOC = NULL){
+station_report = function(output_type = "pdf", STATION_NUMBER = NULL){
 
   if(!output_type %in% c("pdf","html")){
     stop('output_type must be "pdf" or "html"')
@@ -36,8 +36,7 @@ station_report = function(output_type = "pdf", STATION_NUMBER = NULL, PROV_TERR_
                     output_format = paste0(output_type,"_document"),
                     params = list(
                       table_format = ifelse(output_type == "pdf","latex","html"),
-                      stns = STATION_NUMBER,
-                      prov = PROV_TERR_STATE_LOC),
+                      stns = STATION_NUMBER),
                     output_file = paste0("STN_",STATION_NUMBER,"_",Sys.Date(),".",output_type),
                     output_dir = paste0("report/station_reports")
   )

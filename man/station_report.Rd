@@ -4,22 +4,25 @@
 \alias{station_report}
 \title{Station report generator}
 \usage{
-station_report(output_type = "pdf", STATION_NUMBER = NULL,
-  PROV_TERR_STATE_LOC = NULL)
+station_report(output_type = "pdf", STATION_NUMBER = NULL)
 }
 \arguments{
-\item{STATION_NUMBER}{Water Survey of Canada station number. No default.}
+\item{output_type}{the type of file to be outputted. Currently html and pdf are supported. defaults to pdf}
 
-\item{PROV_TERR_STATE_LOC}{Province, state or territory. See also for argument options.}
+\item{STATION_NUMBER}{Water Survey of Canada station number. No default.}
 }
 \description{
 Commands to generate reports
 }
 \examples{
 \donttest{
-station_report(output_type = "pdf", STATION_NUMBER = "08EB005", PROV_TERR_STATE_LOC = "BC")
-station_report(output_type = "pdf", STATION_NUMBER = "08MF005", PROV_TERR_STATE_LOC = "BC")
+station_report(output_type = "pdf", STATION_NUMBER = "08EB005")
+station_report(output_type = "pdf", STATION_NUMBER = "08MF005")
+station_report(output_type = "pdf", STATION_NUMBER = "07EA005")
 }
 
 
+}
+\seealso{
+Other report_generators: \code{\link{net_diag_report}}
 }

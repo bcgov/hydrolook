@@ -3,7 +3,7 @@
 export(check_realtime_lag)
 export(check_stn_gap)
 export(check_stn_variability)
-export(generate_report)
+export(net_diag_report)
 export(realtime_lag_report)
 export(station_report)
 import(dplyr)

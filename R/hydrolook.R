@@ -36,7 +36,7 @@
 #'
 NULL
 
-#' REmoves notes from R CMD check for NSE
+#' Removes notes from R CMD check for NSE
 #'
 .onLoad <- function(libname = find.package("hydrolook"), pkgname = "hydrolook"){
   # CRAN Note avoidance
