@@ -60,8 +60,9 @@ options(knitr.table.format = params$table_format)
 
 
 ```{r, message=FALSE, warning=FALSE, echo = FALSE}
-prov <- params$prov
-bc_lag <- check_realtime_lag(PROV_TERR_STATE_LOC = prov)
+#prov <- "PE"
+bc_lag <- check_realtime_lag(PROV_TERR_STATE_LOC = params$prov)
+network_info <- realtime_network_meta(PROV_TERR_STATE_LOC = params$prov)
 #bc_lag <- check_realtime_lag(STATION_NUMBER = c("08NL071","08LG048"))
 
 #bc_lag
@@ -131,7 +132,7 @@ bc_lag %>%
 ```{r}
 big_lags <- bc_lag %>%
   filter(time_lag_num > 10) %>%
-  left_join(allstations, by = c("STATION_NUMBER")) %>%
+  left_join(network_info, by = c("STATION_NUMBER")) %>%
   select(STATION_NUMBER, STATION_NAME, time_obs, time_mod, time_lag) %>%
   arrange(time_lag)
 
@@ -141,7 +142,7 @@ if (nrow(big_lags) == 0){
 
 if (params$table_format == "latex" && nrow(big_lags) > 0){
   kable(big_lags, format = "latex", longtable = T, booktabs = T) %>%
-    kable_styling(font_size = 8, latex_options = c("striped","HOLD_position","repeat_header")) %>%
+    kable_styling(font_size = 5, latex_options = c("striped","HOLD_position","repeat_header")) %>%
     add_footnote(c("Values presented in hours"), notation = "number")
 }
 
@@ -159,7 +160,7 @@ print(Sys.time())
 
 not_updating <- bc_lag %>%
   filter(time_obs < Sys.time() - (24*60*60)) %>%
-  left_join(allstations, by = c("STATION_NUMBER")) %>%
+  left_join(network_info, by = c("STATION_NUMBER")) %>%
   select(STATION_NUMBER, STATION_NAME, time_obs) %>%
   arrange(time_obs)
 
@@ -173,7 +174,7 @@ if (params$table_format == "latex" && nrow(big_lags) > 0){
 }
 
 if (params$table_format == "html" && nrow(big_lags) > 0){
-  kable(not_updating, format = "html") %>%
+  kable(font_size =5,not_updating, format = "html") %>%
     kable_styling(bootstrap_options = c("striped", "hover")) 
 }
 ```
