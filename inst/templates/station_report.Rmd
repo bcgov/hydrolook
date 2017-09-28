@@ -49,6 +49,8 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.path =
 
 ## For testing
 #params <- tibble(stns = "08MF005")
+## A station not in hydat
+#params <- tibble(stns = "08HF014")
 
 ## Create station header
 stn_header <- allstations %>%
@@ -78,6 +80,10 @@ HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
 
 ## Daily Summary
 ```{r}
+range <- STN_DATA_RANGE(STATION_NUMBER = params$stns) %>%
+  filter(DATA_TYPE == "Q") %>%
+  select(YEAR_FROM, YEAR_TO, RECORD_LENGTH)
+
 tbl_flow <- HIST_FLOW %>%
   mutate(Q7_day = rollapply(Value, 7, mean, na.rm = TRUE, partial = TRUE, fill = NA, align = "right")) %>% 
   filter(month(Date) %in% month(Sys.Date()-1)) %>%
@@ -96,8 +102,10 @@ tbl_flow <- HIST_FLOW %>%
 
 colnames(tbl_flow) <- c("Date","Daily Discharge","Daily Rank", "7 Day Discharge", "7 Day Rank","Symbol")
 
-kable(tbl_flow, format = "latex", booktabs = T) %>%
-  kable_styling(latex_options = c("HOLD_position")) %>%
+
+
+kable(cbind(tbl_flow,range), format = "latex", booktabs = T) %>%
+  kable_styling(font_size = 6, latex_options = c("HOLD_position")) %>%
   add_footnote(c("All discharge presented in m^3/s","7 day rolling average includes previous 7 days"), notation = "alphabet")
 
 ```
@@ -164,29 +172,38 @@ rl_plt <- rl_data_day %>%
 ```
 
 ```{r}
-HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
-
-hist_rl_dist <- HIST_FLOW %>%
-  filter(!(month(Date)==2 & day(Date)==29)) %>%
-  mutate(Date2 = ymd(paste0(year(Sys.Date()), "-", month(Date), "-",day(Date)))) %>%
-  filter(Date2 <= max(rl_data_day$Date_day) & Date2 >= min(rl_data_day$Date_day)) %>%
-  mutate(Year = year(Date))
+#HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
 
 
-hist_plt <- hist_rl_dist %>%
-  ggplot() +
-  geom_line(aes(x = Date2, y = Value, colour = Year, group = Year)) +
-  geom_line(data = rl_data_day, aes(x = Date_day, Value), colour = "red") +
-  scale_colour_viridis_c() +
+## A dataframe 
+pct_flow <- HIST_FLOW %>%
+  #mutate(Q7_day = zoo::rollapply(Value, 7, mean, na.rm = TRUE, partial = TRUE, fill = NA, align = "right")) %>%
+  filter(month(Date) %in% month(seq.Date(from = (Sys.Date()-30), to = Sys.Date(), by = "day"))) %>%
+  filter(day(Date) %in% day(seq.Date(from = (Sys.Date()-30), to = Sys.Date(), by = "day"))) %>%
+  mutate(day_month = paste0(day(Date),"-",month = month(Date)), year= year(Date)) %>%
+  group_by(day_month, STATION_NUMBER) %>%
+  group_by(day_month) %>%
+  mutate(prctile = ecdf(Value)(Value)) %>%
+  mutate(Date_no_year = dmy(paste0(day_month,"-",year(Sys.Date())))) %>%
+  filter(Date_no_year >=ymd(Sys.Date()-30))
+
+
+hist_plt <- ggplot(pct_flow, aes(x = Date_no_year, y = Value)) +
+  geom_point(aes(colour = prctile)) +
+  geom_line(data = rl_data_day, aes(x = Date_day), colour = "red") +
+  geom_point(data = rl_data_day, aes(x = Date_day, shape = factor(year(Date_day))), colour = "red") +
+  scale_colour_viridis_c(name = "Percentile", option = "viridis") +
+  scale_shape_discrete(name = "Year") +
   theme_minimal() +
-  labs(title = "Historical Hydrographs")
-  
+  labs(title = "Historical flow relative to current year",
+       subtitle = "Current year flows are displayed in red")
+
 ```
 
 
 
 ```{r}
-HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
+#HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
 
 hist_dist_plt <- HIST_FLOW %>%
   filter(month(Date) %in% month(seq.Date(from = (Sys.Date()-30), to = Sys.Date(), by = "day"))) %>%
@@ -201,5 +218,10 @@ hist_dist_plt <- HIST_FLOW %>%
 ## Plot Summaries
 
 ```{r plot, fig.width = 10, fig.height=8}
-plot_grid(stn_map, rl_plt, hist_plt, hist_dist_plt)
+#plot_grid(stn_map, rl_plt, hist_plt, hist_dist_plt)
+
+toprow <- plot_grid(stn_map, rl_plt)
+
+plot_grid(toprow, hist_plt, ncol = 1)
+
 ```
