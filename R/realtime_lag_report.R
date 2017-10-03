@@ -15,7 +15,7 @@
 #'
 #' @inheritParams net_diag_report
 #'
-#' @description run this command to render the Net_diag report. The reports are then outputted to the report folder
+#' @description run this command to render the realtime report. The reports are then outputted to the report folder
 #'
 #' @examples
 #' \dontrun{
@@ -31,7 +31,9 @@ realtime_lag_report <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC")
   }
 
 
-  input_path = system.file("templates", "Realtime_lag.Rmd", package="hydrolook")
+  input_path = system.file("templates", "realtime_lag.Rmd", package="hydrolook")
+
+  dir_here <- paste0(getwd(),"/report/realtime_lag")
 
   rmarkdown::render(input = input_path,
                     output_format = paste0(output_type,"_document"),
@@ -39,7 +41,7 @@ realtime_lag_report <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC")
                       table_format = ifelse(output_type == "pdf","latex","html"),
                       prov = PROV_TERR_STATE_LOC
                     ),
-                    output_file = paste0("Realtime_lag_",PROV_TERR_STATE_LOC,"_",Sys.Date(),".",output_type),
-                    output_dir = paste0("report/","Realtime_lag"))
-
+                    output_file = paste0("realtime_lag_",PROV_TERR_STATE_LOC,"_",Sys.Date(),".",output_type),
+                    output_dir = dir_here
+                    )
 }

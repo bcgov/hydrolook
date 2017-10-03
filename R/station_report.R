@@ -13,6 +13,8 @@
 #' @title Station report generator
 #' @description Commands to generate reports
 #'
+#' @return Will output a report to a report/station_report directory
+#'
 #' @param output_type the type of file to be outputted. Currently html and pdf are supported. defaults to pdf
 #' @param STATION_NUMBER Water Survey of Canada station number. No default.
 #' @family report_generators
@@ -32,12 +34,14 @@ station_report = function(output_type = "pdf", STATION_NUMBER = NULL){
     stop('output_type must be "pdf" or "html"')
   }
 
+  dir_here <- paste0(getwd(),"/report/station_reports")
+
   rmarkdown::render(system.file("templates", "station_report.Rmd", package="hydrolook"),
                     output_format = paste0(output_type,"_document"),
                     params = list(
                       table_format = ifelse(output_type == "pdf","latex","html"),
                       stns = STATION_NUMBER),
                     output_file = paste0("STN_",STATION_NUMBER,"_",Sys.Date(),".",output_type),
-                    output_dir = paste0("report/station_reports")
+                    output_dir = dir_here
   )
 }

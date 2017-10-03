@@ -60,7 +60,7 @@ options(knitr.table.format = params$table_format)
 
 
 ```{r, message=FALSE, warning=FALSE, echo = FALSE}
-#prov <- "PE"
+#params <- tibble(table_format = "latex", prov = "PE")
 bc_lag <- check_realtime_lag(PROV_TERR_STATE_LOC = params$prov)
 network_info <- realtime_network_meta(PROV_TERR_STATE_LOC = params$prov)
 #bc_lag <- check_realtime_lag(STATION_NUMBER = c("08NL071","08LG048"))
@@ -168,12 +168,12 @@ if (nrow(not_updating) == 0){
   cat("All stations have updated measurements taken within the last 24 hours")
 }
 
-if (params$table_format == "latex" && nrow(big_lags) > 0){
+if (params$table_format == "latex" && nrow(not_updating) > 0){
   kable(not_updating, format = "latex", longtable = T, booktabs = T) %>%
     kable_styling(font_size = 8, latex_options = c("striped","HOLD_position","repeat_header")) 
 }
 
-if (params$table_format == "html" && nrow(big_lags) > 0){
+if (params$table_format == "html" && nrow(not_updating) > 0){
   kable(font_size =5,not_updating, format = "html") %>%
     kable_styling(bootstrap_options = c("striped", "hover")) 
 }

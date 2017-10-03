@@ -12,7 +12,7 @@ net_diag_report(output_type = "pdf", PROV_TERR_STATE_LOC = "BC")
 \item{PROV_TERR_STATE_LOC}{Province to be surveyed. Defaults to BC.}
 }
 \description{
-run this command to render the Net_diag report. The reports are then outputted to the report folder
+run this command to render the net_diag report. The reports are then outputted to the report folder
 }
 \examples{
 \dontrun{

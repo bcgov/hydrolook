@@ -11,6 +11,9 @@ station_report(output_type = "pdf", STATION_NUMBER = NULL)
 
 \item{STATION_NUMBER}{Water Survey of Canada station number. No default.}
 }
+\value{
+Will output a report to a report/station_report directory
+}
 \description{
 Commands to generate reports
 }

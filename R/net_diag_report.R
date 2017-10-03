@@ -18,7 +18,7 @@
 #' @param PROV_TERR_STATE_LOC Province to be surveyed. Defaults to BC.
 #' @param output_type the type of file to be outputted. Currently html and pdf are supported. defaults to pdf
 #'
-#' @description run this command to render the Net_diag report. The reports are then outputted to the report folder
+#' @description run this command to render the net_diag report. The reports are then outputted to the report folder
 #' @family report_generators
 #' @examples
 #' \dontrun{
@@ -32,7 +32,9 @@ net_diag_report <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC") {
     stop('output_type must be "pdf" or "html"')
   }
 
-  input_path = system.file("templates", "Net_diag.Rmd", package="hydrolook")
+  input_path = system.file("templates", "net_diag.Rmd", package="hydrolook")
+
+  dir_here <- paste0(getwd(),"/report/net_diag_lag")
 
   rmarkdown::render(input = input_path,
                     output_format = paste0(output_type,"_document"),
@@ -40,7 +42,7 @@ net_diag_report <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC") {
                       table_format = ifelse(output_type == "pdf","latex","html"),
                       prov = PROV_TERR_STATE_LOC
                     ),
-                    output_file = paste0("Net_diag_",PROV_TERR_STATE_LOC,"_",Sys.Date(),".",output_type),
-                    output_dir = "report/Net_diag")
+                    output_file = paste0("net_diag_",PROV_TERR_STATE_LOC,"_",Sys.Date(),".",output_type),
+                    output_dir = dir_here)
 
 }

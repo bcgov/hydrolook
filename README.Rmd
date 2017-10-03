@@ -45,7 +45,7 @@ You will need to download that file, unzip it and put it somewhere on local stor
 
 ## Example
 
-This is a basic example of `hydrolook` usage. Reports are written in rmarkdown format and are generated using `generate_report()`. For example, if we wanted to generate the Net_diag report we could use the following command:
+This is a basic example of `hydrolook` usage. Reports are written in rmarkdown format and are generated using report specific commands. For example, if we wanted to generate the Net_diag report we could use the following command:
 ```{r, eval = FALSE}
 realtime_lag_report(output_type = "pdf", PROV_TERR_STATE_LOC = "AB")
 

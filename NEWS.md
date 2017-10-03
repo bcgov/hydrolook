@@ -1,3 +1,7 @@
+# hydrolook 0.1.6
+* fixed output bug for all reports
+* updated docs
+
 # hydrolook 0.1.5
 * better percentile figure
 * different arrange of figures
