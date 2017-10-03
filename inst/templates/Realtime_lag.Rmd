@@ -75,7 +75,7 @@ lag_tbl <- bc_lag %>%
   filter(!is.na(time_lag_num)) %>%
   summarise_at(vars(time_lag_num), funs(mean, median, sd, min, max, n()))
 
-cat(paste0("Province surveyed: ", prov))
+cat(paste0("Province surveyed: ", params$prov))
 
 if (params$table_format == "latex"){
 kable(lag_tbl, format = "latex", booktabs = T) %>%
