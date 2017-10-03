@@ -19,7 +19,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' realtime_lag_report(output_type = "pdf", province = "PE")
+#' realtime_lag_report(output_type = "pdf", PROV_TERR_STATE_LOC = "PE")
 #' }
 #' @export
 

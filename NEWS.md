@@ -1,3 +1,8 @@
+# hydrolook 0.1.5
+* better percentile figure
+* different arrange of figures
+
+
 # hydrolook 0.1.4
 * Three working functions for each report type
 * Accept STATION_NUMBER/PROV_TERR_STATE_LOC as an argument
