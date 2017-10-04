@@ -69,10 +69,9 @@ cat(format(Sys.Date(), '%d %B, %Y'))
 rl_data = download_realtime_dd(STATION_NUMBER = params$stns)
 
 rl_data_day <- rl_data %>%
-  padr::thicken("day") %>%
+  mutate(Date_day = as.Date(Date)) %>%
   group_by(Date_day, STATION_NUMBER) %>%
-  summarise(Value = mean(Value, na.rm = TRUE)) %>%
-  filter(Date_day >= (Sys.Date()-30)) 
+  summarise(Value = mean(Value, na.rm = TRUE))
 
 HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
 ```
@@ -172,31 +171,29 @@ rl_plt <- rl_data_day %>%
 ```
 
 ```{r}
-#HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
+
 
 
 ## A dataframe 
 pct_flow <- HIST_FLOW %>%
-  #mutate(Q7_day = zoo::rollapply(Value, 7, mean, na.rm = TRUE, partial = TRUE, fill = NA, align = "right")) %>%
-  filter(month(Date) %in% month(seq.Date(from = (Sys.Date()-30), to = Sys.Date(), by = "day"))) %>%
-  filter(day(Date) %in% day(seq.Date(from = (Sys.Date()-30), to = Sys.Date(), by = "day"))) %>%
-  mutate(day_month = paste0(day(Date),"-",month = month(Date)), year= year(Date)) %>%
-  group_by(day_month, STATION_NUMBER) %>%
-  group_by(day_month) %>%
+  mutate(year_day = yday(Date)) %>%
+  filter(year_day %in% yday(seq.Date(from = (Sys.Date()-30), 
+                                     to = Sys.Date(), by = "day"))) %>%
+  group_by(year_day, STATION_NUMBER) %>%
   mutate(prctile = ecdf(Value)(Value)) %>%
-  mutate(Date_no_year = dmy(paste0(day_month,"-",year(Sys.Date())))) %>%
-  filter(Date_no_year >=ymd(Sys.Date()-30))
+  mutate(Date_no_year = dmy(paste0(day(Date),"-",month(Date),"-",year(Sys.Date()))))
 
 
 hist_plt <- ggplot(pct_flow, aes(x = Date_no_year, y = Value)) +
   geom_point(aes(colour = prctile)) +
   geom_line(data = rl_data_day, aes(x = Date_day), colour = "red") +
   geom_point(data = rl_data_day, aes(x = Date_day, shape = factor(year(Date_day))), colour = "red") +
-  scale_colour_viridis_c(name = "Percentile", option = "viridis") +
+  scale_colour_viridis_c(name = "Percentile \n", option = "viridis") +
   scale_shape_discrete(name = "Year") +
   theme_minimal() +
   labs(title = "Historical flow relative to current year",
-       subtitle = "Current year flows are displayed in red")
+       subtitle = "Current year flows are displayed in red",
+       x = "Date", y = "Discharge (m^3/s)")
 
 ```
 
