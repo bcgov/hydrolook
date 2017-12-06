@@ -57,9 +57,9 @@ options(knitr.table.format = params$table_format)
 #params <- tibble(table_format = "latex", prov = "PE")
 
 ## Change to sf
-bc_bound_sf <- st_as_sf(bcmaps::bc_bound_hres)
-hydrozones_sf <- st_as_sf(bcmaps::hydrozones) %>%
-  select(HYDZN_NAME)
+bc_bound_sf <- bcmaps::bc_bound()
+hydrozones_sf <- bcmaps::hydrozones() %>%
+  select(HYDROLOGICZONE_NAME)
   
 
 ```
