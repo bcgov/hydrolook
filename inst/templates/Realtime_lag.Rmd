@@ -61,8 +61,8 @@ options(knitr.table.format = params$table_format)
 
 ```{r, message=FALSE, warning=FALSE, echo = FALSE}
 #params <- tibble(table_format = "latex", prov = "PE")
-bc_lag <- check_realtime_lag(PROV_TERR_STATE_LOC = params$prov)
-network_info <- realtime_network_meta(PROV_TERR_STATE_LOC = params$prov)
+bc_lag <- check_realtime_lag(prov_terr_state_loc = params$prov)
+network_info <- realtime_stations(prov_terr_state_loc = params$prov)
 #bc_lag <- check_realtime_lag(STATION_NUMBER = c("08NL071","08LG048"))
 
 #bc_lag
