@@ -71,7 +71,8 @@ rl_data <- realtime_dd(station_number = params$stns)
 rl_data_day <- rl_data %>%
   mutate(Date_day = as.Date(Date)) %>%
   group_by(Date_day, STATION_NUMBER) %>%
-  summarise(Value = mean(Value, na.rm = TRUE))
+  summarise(Value = mean(Value, na.rm = TRUE)) %>%
+  ungroup()
 
 HIST_FLOW <- hy_daily_flows(station_number = params$stns)
 ```
@@ -160,7 +161,7 @@ stn_map <- ggplot() +
 ```{r}
 rl_plt <- rl_data_day %>%
   ggplot(aes(x = Date_day, y = Value)) +
-  geom_line() +
+  geom_path() +
   geom_point() +
   theme_minimal() +
   labs(title = "Last Thirty Days")
@@ -178,13 +179,15 @@ pct_flow <- HIST_FLOW %>%
                                      to = Sys.Date(), by = "day"))) %>%
   group_by(year_day, STATION_NUMBER) %>%
   mutate(prctile = ecdf(Value)(Value)) %>%
-  mutate(Date_no_year = dmy(paste0(day(Date),"-",month(Date),"-",year(Sys.Date()))))
+  mutate(Date_no_year = dmy(paste0(day(Date),"-",month(Date),"-",year(Sys.Date())))) %>%
+  ungroup()
 
 
 hist_plt <- ggplot(pct_flow, aes(x = Date_no_year, y = Value)) +
   geom_point(aes(colour = prctile)) +
   geom_line(data = rl_data_day, aes(x = Date_day), colour = "red") +
-  geom_point(data = rl_data_day, aes(x = Date_day, shape = factor(year(Date_day))), colour = "red") +
+  geom_point(data = rl_data_day, aes(x = Date_day, y = Value, 
+                                     shape = factor(year(Date_day))), colour = "red") +
   scale_colour_viridis_c(name = "Percentile \n", option = "viridis") +
   scale_shape_discrete(name = "Year") +
   theme_minimal() +
