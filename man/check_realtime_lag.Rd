@@ -4,14 +4,14 @@
 \alias{check_realtime_lag}
 \title{Check real time lag of realtime stations}
 \usage{
-check_realtime_lag(STATION_NUMBER = NULL, PROV_TERR_STATE_LOC = NULL,
+check_realtime_lag(station_number = NULL, prov_terr_state_loc = NULL,
   data_interval = "hourly", tracker = FALSE)
 }
 \arguments{
-\item{STATION_NUMBER}{Water Survey of Canada station number. No default. Can also take the "ALL" argument.
+\item{station_number}{Water Survey of Canada station number. No default. Can also take the "ALL" argument.
 Currently you can't mix stations from two difference jurisdictions. See examples.}
 
-\item{PROV_TERR_STATE_LOC}{Province, state or territory. Defaults to "BC". Will not accept ALL.}
+\item{prov_terr_state_loc}{Province, state or territory. Defaults to "BC". Will not accept ALL.}
 
 \item{data_interval}{Examine hourly or daily data? Defaults to hourly}
 
@@ -31,10 +31,10 @@ Check lag of real time stations using most recent observations and modification 
 }
 \examples{
 \donttest{
-check_realtime_lag(STATION_NUMBER = c("08NL071","05QB002"))
+check_realtime_lag(station_number = c("08NL071","05QB002"))
 
 ## To check all stations in PEI:
-check_realtime_lag(PROV_TERR_STATE_LOC = "PE")
+check_realtime_lag(prov_terr_state_loc = "PE")
 }
 
 

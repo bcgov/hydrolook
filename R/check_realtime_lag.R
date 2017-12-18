@@ -15,9 +15,9 @@
 #'
 #' @description Check lag of real time stations using most recent observations and modification date of most recent file.
 #'
-#' @param STATION_NUMBER Water Survey of Canada station number. No default. Can also take the "ALL" argument.
+#' @param station_number Water Survey of Canada station number. No default. Can also take the "ALL" argument.
 #' Currently you can't mix stations from two difference jurisdictions. See examples.
-#' @param PROV_TERR_STATE_LOC Province, state or territory. Defaults to "BC". Will not accept ALL.
+#' @param prov_terr_state_loc Province, state or territory. Defaults to "BC". Will not accept ALL.
 #' @param tracker Should a progress list of stations be printed while the analysis is executed? Defaults to FALSE
 #' @param data_interval Examine hourly or daily data? Defaults to hourly
 #'
@@ -32,36 +32,36 @@
 #'
 #' @examples
 #' \donttest{
-#' check_realtime_lag(STATION_NUMBER = c("08NL071","05QB002"))
+#' check_realtime_lag(station_number = c("08NL071","05QB002"))
 #'
 #' ## To check all stations in PEI:
-#' check_realtime_lag(PROV_TERR_STATE_LOC = "PE")
+#' check_realtime_lag(prov_terr_state_loc = "PE")
 #' }
 #'
 #'
 #' @export
 
-check_realtime_lag <- function(STATION_NUMBER = NULL, PROV_TERR_STATE_LOC = NULL,
+check_realtime_lag <- function(station_number = NULL, prov_terr_state_loc = NULL,
                                data_interval = "hourly", tracker = FALSE) {
-  prov = PROV_TERR_STATE_LOC
+  prov = prov_terr_state_loc
 
   #if(prov == "ALL") {message("ALL is not valid input. Please select individual jurisdictions")}
 
-  if(!is.null(STATION_NUMBER)){
-    stns = STATION_NUMBER
-    choose_df = tidyhydat::realtime_network_meta()
+  if(!is.null(station_number)){
+    stns = station_number
+    choose_df = tidyhydat::realtime_stations()
     choose_df = dplyr::filter(choose_df, STATION_NUMBER %in% stns)
     choose_df = dplyr::select(choose_df, STATION_NUMBER, PROV_TERR_STATE_LOC)
   }
 
-  if(is.null(STATION_NUMBER) ){
-    choose_df = tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = PROV_TERR_STATE_LOC)
+  if(is.null(station_number) ){
+    choose_df = tidyhydat::realtime_stations(prov_terr_state_loc = prov_terr_state_loc)
     choose_df = dplyr::select(choose_df, STATION_NUMBER, PROV_TERR_STATE_LOC)
   }
 
   #if(is.null(STATION_NUMBER)) {
   #  ## Download province stations that are real time
-  #  full_net <- tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = prov)
+  #  full_net <- tidyhydat::realtime_stations(PROV_TERR_STATE_LOC = prov)
   #  ## Add them to the loop
   #  stns = full_net[full_net$PROV_TERR_STATE_LOC == prov,]$STATION_NUMBER
   #}
