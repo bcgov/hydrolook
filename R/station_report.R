@@ -30,6 +30,8 @@
 #'
 station_report = function(output_type = "pdf", STATION_NUMBER = NULL){
 
+  if(!requireNamespace("bcmaps")) stop("bcmaps needs to be installed for this function to work properly. See https://github.com/bcgov/bcmaps")
+
   if(!output_type %in% c("pdf","html")){
     stop('output_type must be "pdf" or "html"')
   }
