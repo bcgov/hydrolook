@@ -1,3 +1,7 @@
+# hydrolook 0.1.7
+* Update to tidyhydat 0.3.1
+* Add new network correlation plot function `network_correlation()`
+
 # hydrolook 0.1.6
 * fixed output bug for all reports
 * updated docs

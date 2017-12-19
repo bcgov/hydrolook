@@ -26,6 +26,10 @@
 #' @importFrom readr cols
 #' @importFrom xml2 read_html
 #' @importFrom lubridate dmy_hm
+#' @importFrom sf filter.sf
+#' @importFrom methods as
+#' @import ggplot2
+#' @import ggraph
 #' @import tidyr
 #' @import dplyr
 #' @import knitr
