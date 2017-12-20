@@ -26,6 +26,10 @@
 #' @importFrom readr cols
 #' @importFrom xml2 read_html
 #' @importFrom lubridate dmy_hm
+#' @importFrom sf filter.sf
+#' @importFrom methods as
+#' @import ggplot2
+#' @import ggraph
 #' @import tidyr
 #' @import dplyr
 #' @import knitr
@@ -36,8 +40,7 @@
 #'
 NULL
 
-#' Removes notes from R CMD check for NSE
-#'
+# Removes notes from R CMD check for NSE
 .onLoad <- function(libname = find.package("hydrolook"), pkgname = "hydrolook"){
   # CRAN Note avoidance
   if(getRversion() >= "2.15.1")

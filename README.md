@@ -19,8 +19,8 @@ To install the `hydrolook` package, you need to install the remotes package then
 ``` r
 install.packages("remotes")
 remotes::install_github("bcgov/hydrolook")
-remotes::install_github("bcgov/tidyhydat")
 remotes::install_github("bcgov/bcmaps")
+install.packages("tidyhydat")
 ```
 
 Then to load the package you need to use the library command. When you install hydrolook, several other packages will be installed as well. In fact `hydrolook` is fairly package intensive project. Several additional packages are downloaded.

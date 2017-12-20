@@ -18,7 +18,7 @@ params:
 ---
 
 ---
-title: "`r tidyhydat::STATIONS(STATION_NUMBER = params$stns)$STATION_NAME` - `r params$stns`"
+title: "`r tidyhydat::hy_stations(station_number = params$stns)$STATION_NAME` - `r params$stns`"
 ---
 
 ```{r setup, include=FALSE}
@@ -66,20 +66,21 @@ cat(format(Sys.Date(), '%d %B, %Y'))
 
 
 ```{r, data_load_in}
-rl_data = download_realtime_dd(STATION_NUMBER = params$stns)
+rl_data <- realtime_dd(station_number = params$stns)
 
 rl_data_day <- rl_data %>%
   mutate(Date_day = as.Date(Date)) %>%
   group_by(Date_day, STATION_NUMBER) %>%
-  summarise(Value = mean(Value, na.rm = TRUE))
+  summarise(Value = mean(Value, na.rm = TRUE)) %>%
+  ungroup()
 
-HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
+HIST_FLOW <- hy_daily_flows(station_number = params$stns)
 ```
 
 
 ## Daily Summary
 ```{r}
-range <- STN_DATA_RANGE(STATION_NUMBER = params$stns) %>%
+range <- hy_stn_data_range(station_number = params$stns) %>%
   filter(DATA_TYPE == "Q") %>%
   select(YEAR_FROM, YEAR_TO, RECORD_LENGTH)
 
@@ -113,13 +114,13 @@ kable(cbind(tbl_flow,range), format = "latex", booktabs = T) %>%
 
 ```{r}
 ## sf-y the files from bcmaps
-wsc_drainages_sf <- sf::st_as_sf(bcmaps::wsc_drainages) 
-watercourses_5M_sf <- sf::st_as_sf(bcmaps::watercourses_5M)
-nr_regions_sf <- sf::st_as_sf(bcmaps::nr_regions)
-bc_bound_hres_sf <- sf::st_as_sf(bcmaps::bc_bound_hres) 
+wsc_drainages_sf <- wsc_drainages() 
+watercourses_5M_sf <- watercourses_5M()
+nr_regions_sf <- nr_regions()
+bc_bound_hres_sf <- bc_bound_hres()
 
 
-stns_sf <- STATIONS(STATION_NUMBER = params$stns) %>%
+stns_sf <- hy_stations(station_number = params$stns) %>%
   st_as_sf(., coords = c("LONGITUDE", "LATITUDE"), 
            crs = 4326, 
            agr = "constant") %>%
@@ -136,19 +137,16 @@ plt_5m <- watercourses_5M_sf %>%
   filter(!is.na(STATION_NUMBER))
 
 ## Larger watershed
-plt_nr <- nr_regions_sf%>%
+plt_nr <- nr_regions_sf %>%
   st_join(plt_wsc) %>%
-  filter(!is.na(WSCMDA_EN)) %>%
-  mutate(REG_NAME = gsub("Natural Resource Region","", REG_NAME))
+  filter(!is.na(MAJOR_DRAINAGE_AREA_NAME)) %>%
+  mutate(REG_NAME = gsub("Natural Resource Region","", REGION_NAME))
 
 ## bc outline
-#bc_sf <-  
-
-
 
 stn_map <- ggplot() +
-  geom_sf(data = plt_wsc, aes(fill = WSCSSDA_EN), alpha = 0.8) +
-  geom_sf(data = plt_nr, aes(fill = REG_NAME), alpha = 0.2) +
+  geom_sf(data = plt_wsc, aes(fill = MAJOR_DRAINAGE_AREA_NAME), alpha = 0.8) +
+  geom_sf(data = plt_nr, aes(fill = REGION_NAME), alpha = 0.2) +
   geom_sf(data = plt_5m, aes(colour = name_en), size = 2) +
   #geom_sf(data = bc_sf) +
   geom_sf(data = stns_sf) +
@@ -163,7 +161,7 @@ stn_map <- ggplot() +
 ```{r}
 rl_plt <- rl_data_day %>%
   ggplot(aes(x = Date_day, y = Value)) +
-  geom_line() +
+  geom_path() +
   geom_point() +
   theme_minimal() +
   labs(title = "Last Thirty Days")
@@ -181,13 +179,15 @@ pct_flow <- HIST_FLOW %>%
                                      to = Sys.Date(), by = "day"))) %>%
   group_by(year_day, STATION_NUMBER) %>%
   mutate(prctile = ecdf(Value)(Value)) %>%
-  mutate(Date_no_year = dmy(paste0(day(Date),"-",month(Date),"-",year(Sys.Date()))))
+  mutate(Date_no_year = dmy(paste0(day(Date),"-",month(Date),"-",year(Sys.Date())))) %>%
+  ungroup()
 
 
 hist_plt <- ggplot(pct_flow, aes(x = Date_no_year, y = Value)) +
   geom_point(aes(colour = prctile)) +
   geom_line(data = rl_data_day, aes(x = Date_day), colour = "red") +
-  geom_point(data = rl_data_day, aes(x = Date_day, shape = factor(year(Date_day))), colour = "red") +
+  geom_point(data = rl_data_day, aes(x = Date_day, y = Value, 
+                                     shape = factor(year(Date_day))), colour = "red") +
   scale_colour_viridis_c(name = "Percentile \n", option = "viridis") +
   scale_shape_discrete(name = "Year") +
   theme_minimal() +
