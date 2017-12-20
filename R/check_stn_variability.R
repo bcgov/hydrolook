@@ -43,7 +43,7 @@ check_stn_variability <- function(STATION_NUMBER = NULL, PROV_TERR_STATE_LOC = N
 
   ## If station is omitted
   if(is.null(stations)){
-    allstations_list = tidyhydat::realtime_network_meta(PROV_TERR_STATE_LOC = prov)
+    allstations_list = tidyhydat::realtime_stations(prov_terr_state_loc = prov)
     loop_stations = allstations_list$STATION_NUMBER
   }
 
@@ -62,7 +62,7 @@ check_stn_variability <- function(STATION_NUMBER = NULL, PROV_TERR_STATE_LOC = N
     }
 
     rtdata = tryCatch(
-      tidyhydat::download_realtime_dd(STATION_NUMBER = loop_stations[i]),
+      tidyhydat::realtime_dd(station_number = loop_stations[i]),
       error = function(e)
         data.frame(Status = e$message)
     )

@@ -179,7 +179,7 @@ if (nrow(ldg) != 0 & params$prov == "BC"){
 ```{r realdata_ldg}
 #Output a figure if no anything meets Criteria 1
 if (nrow(ldg) != 0){
-  all_real <- download_realtime_dd(STATION_NUMBER = ldg$STATION_NUMBER)
+  all_real <- realtime_dd(station_number = ldg$STATION_NUMBER)
   #all_real <- bind_realtime(stations = ldg$station_number) 
 } #else {
   #all_real <- download_realtime2(STATION_NUMBER = station_number, PROV_TERR_STATE_LOC = "BC")
@@ -263,7 +263,7 @@ if (nrow(fdg) != 0 & params$prov == "BC"){
 ## Figure
 ```{r realdata_fdg}
 if (nrow(fdg) != 0){
-  all_real <- download_realtime_dd(STATION_NUMBER = fdg$STATION_NUMBER)
+  all_real <- realtime_dd(station_number = fdg$STATION_NUMBER)
 } #else {
   #all_real <- download_realtime2(STATION_NUMBER = station_number, PROV_TERR_STATE_LOC = "BC")
 #}
