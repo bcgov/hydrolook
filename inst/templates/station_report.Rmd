@@ -45,7 +45,8 @@ library(bcmaps)
 library(cowplot)
 library(zoo)
 
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.path = "./")
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
+                      fig.path = here::here("report/station_reports"))
 
 ## For testing
 #params <- tibble(stns = "08MF005")
@@ -97,7 +98,7 @@ tbl_flow <- HIST_FLOW %>%
   filter(!is.na(Value)) %>%
   mutate(Rank = min_rank(Value)) %>%
   mutate(Rank7day = min_rank(Q7_day)) %>%
-  filter(year(Date) == 2017) %>%
+  filter(year(Date) == year(Sys.Date())) %>%
   select(Date, Value, Rank, Q7_day, Rank7day, Symbol)
 
 colnames(tbl_flow) <- c("Date","Daily Discharge","Daily Rank", "7 Day Discharge", "7 Day Rank","Symbol")

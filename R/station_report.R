@@ -36,7 +36,7 @@ station_report = function(output_type = "pdf", STATION_NUMBER = NULL){
     stop('output_type must be "pdf" or "html"')
   }
 
-  dir_here <- paste0(getwd(),"/report/station_reports")
+  dir_here <- here::here("report/station_reports")
 
   rmarkdown::render(system.file("templates", "station_report.Rmd", package="hydrolook"),
                     output_format = paste0(output_type,"_document"),

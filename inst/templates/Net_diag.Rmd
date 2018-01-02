@@ -34,7 +34,8 @@ subtitle: "Province examined: `r params$prov`"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, messages = FALSE, fig.width = 8, fig.height = 12)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, messages = FALSE, 
+                      fig.width = 8, fig.height = 8, fig.path = here::here("report/net_diag_lag"))
 
 library(dplyr)
 library(tidyr)

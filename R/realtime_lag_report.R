@@ -33,10 +33,11 @@ realtime_lag_report <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC")
 
   input_path = system.file("templates", "realtime_lag.Rmd", package="hydrolook")
 
-  dir_here <- paste0(getwd(),"/report/realtime_lag")
+  dir_here <- here::here("report/Realtime_lag")
 
   rmarkdown::render(input = input_path,
                     output_format = paste0(output_type,"_document"),
+                    intermediates_dir = dir_here,
                     params = list(
                       table_format = ifelse(output_type == "pdf","latex","html"),
                       prov = PROV_TERR_STATE_LOC

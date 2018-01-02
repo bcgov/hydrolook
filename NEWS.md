@@ -1,3 +1,7 @@
+# hydrolook 0.1.8
+* Better identification of path through `here::here()`
+* Fixes bug identified in #8; applied to all functions
+
 # hydrolook 0.1.7
 * Update to tidyhydat 0.3.1
 * Add new network correlation plot function `network_correlation()`
