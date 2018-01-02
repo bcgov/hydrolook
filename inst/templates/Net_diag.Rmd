@@ -163,8 +163,8 @@ gap_threshold,
 ## Map 
 ```{r map_ldg, fig.width = 8, fig.height = 8}
 if (nrow(ldg) != 0 & params$prov == "BC"){
-  ggplot(hydrozones_sf) +
-    geom_sf() +
+  ggplot() +
+    geom_sf(data = hydrozones_sf) +
     geom_sf(data = bc_bound_sf, alpha = 0.5) +
     geom_sf(data = filter(gaps, Criteria1 == TRUE), 
             aes(colour = STATION_NUMBER, fill = STATION_NUMBER)) +
