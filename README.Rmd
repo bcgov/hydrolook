@@ -28,8 +28,6 @@ To install the `hydrolook` package, you need to install the remotes package then
 ```{r, echo=TRUE, eval=FALSE}
 install.packages("remotes")
 remotes::install_github("bcgov/hydrolook")
-remotes::install_github("bcgov/bcmaps")
-install.packages("tidyhydat")
 ```
 Then to load the package you need to use the library command. When you install hydrolook, several other packages will be installed as well. In fact `hydrolook` is fairly package intensive project. Several additional packages are downloaded.
 ```{r, eval = TRUE, echo=TRUE}
@@ -37,11 +35,13 @@ library(hydrolook)
 ```
 
 ## HYDAT download
-To use most of the `hydrolook` package you will need the most recent version of the HYDAT database. The sqlite3 version can be downloaded here:
+To use most of the `hydrolook` package you will need the most recent version of the HYDAT database. The sqlite3 version can be downloaded using `tidyhydat` which should have been installed when you installed hydrolook:
 
-- http://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/
+```{r, eval = FALSE}
+library(tidyhydat)
+download_hydat()
+```
 
-You will need to download that file, unzip it and put it somewhere on local storage. The path to the sqlite3 must be specified within each function that uses HYDAT. Or you can use the `download_hydat()` function from `tidyhydat`. 
 
 ## Example
 
