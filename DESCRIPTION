@@ -15,6 +15,7 @@ Imports:
   xml2,
   here,
   tidyhydat,
+  bcmaps,
   lubridate,
   tidyr,
   dplyr,
