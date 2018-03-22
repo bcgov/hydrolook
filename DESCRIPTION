@@ -4,32 +4,32 @@ Version: 0.1.8
 Authors@R: c(person("Sam", "Albers", email = "sam.albers@gov.bc.ca", role = c("aut","cre")),
   person("Province of British Columbia", role="cph"))
 Description: Provides functions and reports to diagnose issues with the Water Survey of Canada Hydrometric network.
-Depends: R (>= 3.4.0)
 License: file LICENSE
+Depends: 
+    R (>= 3.4.0)
+Imports: 
+    bcmaps,
+    corrr,
+    cowplot,
+    dplyr,
+    ggplot2,
+    ggraph,
+    here,
+    igraph,
+    kableExtra,
+    knitr,
+    lubridate,
+    methods,
+    readr,
+    rmarkdown,
+    rvest,
+    sf,
+    sp,
+    tibble,
+    tidyhydat,
+    tidyr,
+    xml2
+VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
-Imports:
-  tibble,
-  methods,
-  readr,
-  xml2,
-  here,
-  tidyhydat,
-  bcmaps,
-  lubridate,
-  tidyr,
-  dplyr,
-  knitr,
-  rmarkdown,
-  rvest,
-  kableExtra,
-  sf,
-  sp,
-  cowplot,
-  bcmaps,
-  corrr,
-  igraph,
-  ggraph,
-  ggplot2
 RoxygenNote: 6.0.1
-VignetteBuilder: knitr

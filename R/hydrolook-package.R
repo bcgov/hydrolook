@@ -10,17 +10,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and limitations under the License.
 
-
-
-#' @title Hydrometric Network Diagnostic
-#'
-#' @description This package provides functions and reports to diagnose issues with the Water Survey of Canada Hydrometric network
-#'
-#' \code{hydrolook} package
-#'
-#' @docType package
-#' @name hydrolook
-#'
 #' @importFrom tibble tibble
 #' @importFrom readr read_csv
 #' @importFrom readr cols
@@ -53,3 +42,5 @@ NULL
   invisible()
 }
 
+#' @keywords internal
+"_PACKAGE"
