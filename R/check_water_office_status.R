@@ -15,7 +15,7 @@
 #'
 #' @param station_number WSC station number
 #' @param print_url logical: Should the Water Office url be printed?
-#' @param cpoy_url logical: Should the Water Office url be copied to a clipboard (windows only)?
+#' @param copy_url logical: Should the Water Office url be copied to a clipboard (windows only)?
 #'
 #' @export
 #'

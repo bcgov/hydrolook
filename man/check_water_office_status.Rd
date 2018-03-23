@@ -12,7 +12,7 @@ check_water_office_status(station_number, print_url = FALSE,
 
 \item{print_url}{logical: Should the Water Office url be printed?}
 
-\item{cpoy_url}{logical: Should the Water Office url be copied to a clipboard (windows only)?}
+\item{copy_url}{logical: Should the Water Office url be copied to a clipboard (windows only)?}
 }
 \description{
 This function scrapes data off the ECCC water office and outputs a summary of station(s) status
