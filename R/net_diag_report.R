@@ -32,9 +32,9 @@ net_diag_report <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC") {
     stop('output_type must be "pdf" or "html"')
   }
 
-  input_path = system.file("templates", "net_diag.Rmd", package="hydrolook")
+  input_path = system.file("templates", "Net_diag.Rmd", package="hydrolook")
 
-  dir_here <- here::here("report/net_diag_lag")
+  dir_here <- here::here("report/net_diag")
 
   rmarkdown::render(input = input_path,
                     output_format = paste0(output_type,"_document"),

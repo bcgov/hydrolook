@@ -13,18 +13,6 @@ params:
   prov:
     value: BC
 geometry: margin=2cm
-header-includes:
-  - \usepackage{booktabs}
-  - \usepackage{longtable}
-  - \usepackage{array}
-  - \usepackage{multirow}
-  - \usepackage[table]{xcolor}
-  - \usepackage{wrapfig}
-  - \usepackage{float}
-  - \usepackage{colortbl}
-  - \usepackage{pdflscape}
-  - \usepackage{tabu}
-  - \usepackage{threeparttable}
 ---
 
 ---
@@ -56,14 +44,13 @@ library(hydrolook)
 library(knitr)
 library(kableExtra)
 library(here)
-library(naniar)
 
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, messages = FALSE, 
                       fig.width = 8, fig.height = 8, fig.path = here("report/net_diag_lag"))
 
 options(knitr.table.format = params$table_format) 
 
-#params <- data.frame(table_format = "latex", prov = "BC")
+#params <- data.frame(table_format = "latex", prov = "NU")
 ```
 
 
@@ -97,33 +84,41 @@ check_datamart_status(params$prov)
 # Stations that haven't reported in the past 6 hours
 ## Continuous stations
 ```{r, message = FALSE, fig.height = 5, fig.width = 10}
-six_hour_status %>%
-  filter(DATA_LAST_SIX_HOURS == "No", OPERATION_SCHEDULE == "Continuous") %>%
-  pull(STATION_NUMBER) %>%
-  realtime_dd() %>%
-  left_join(stns,by = c("STATION_NUMBER", "PROV_TERR_STATE_LOC")) %>%
-  filter(!is.na(STATION_NUMBER), !is.na(Value)) %>%
-  mutate(STATION = paste0(STATION_NAME, " - ", STATION_NUMBER)) %>%
-  ggplot(aes(x = Date, y = STATION, colour = Value)) +
-  geom_point() +
-  facet_wrap(~Parameter, ncol = 2) +
-  scale_colour_viridis_c() +
-  theme_minimal()
+continuous <- six_hour_status %>%
+  filter(DATA_LAST_SIX_HOURS == "No", OPERATION_SCHEDULE == "Continuous")
+
+if(nrow(continuous) > 0){
+  continuous %>%
+    pull(STATION_NUMBER) %>%
+    realtime_dd() %>%
+    left_join(stns,by = c("STATION_NUMBER", "PROV_TERR_STATE_LOC")) %>%
+    filter(!is.na(STATION_NUMBER), !is.na(Value)) %>%
+    mutate(STATION = paste0(STATION_NAME, " - ", STATION_NUMBER)) %>%
+    ggplot(aes(x = Date, y = STATION, colour = Value)) +
+    geom_point() +
+    facet_wrap(~Parameter, ncol = 2) +
+    scale_colour_viridis_c() +
+    theme_minimal()
+}
 ```
 
 ## Seasonal stations
 ```{r, message = FALSE, fig.height = 5, fig.width = 10}
-six_hour_status %>%
-  filter(DATA_LAST_SIX_HOURS == "No", OPERATION_SCHEDULE == "Seasonal") %>%
-  pull(STATION_NUMBER) %>%
-  realtime_dd() %>%
-  left_join(stns,by = c("STATION_NUMBER", "PROV_TERR_STATE_LOC")) %>%
-  filter(!is.na(STATION_NUMBER), !is.na(Value)) %>%
-  mutate(STATION = paste0(STATION_NAME, " - ", STATION_NUMBER)) %>%
-  ggplot(aes(x = Date, y = STATION, colour = Value)) +
-  geom_point() +
-  facet_wrap(~Parameter, ncol = 2) +
-  scale_colour_viridis_c() +
-  theme_minimal()
+seasonal <- six_hour_status %>%
+  filter(DATA_LAST_SIX_HOURS == "No", OPERATION_SCHEDULE == "Seasonal") 
+
+if(nrow(seasonal) > 0){
+  seasonal %>%
+    pull(STATION_NUMBER) %>%
+    realtime_dd() %>%
+    left_join(stns,by = c("STATION_NUMBER", "PROV_TERR_STATE_LOC")) %>%
+    filter(!is.na(STATION_NUMBER), !is.na(Value)) %>%
+    mutate(STATION = paste0(STATION_NAME, " - ", STATION_NUMBER)) %>%
+    ggplot(aes(x = Date, y = STATION, colour = Value)) +
+    geom_point() +
+    facet_wrap(~Parameter, ncol = 2) +
+    scale_colour_viridis_c() +
+    theme_minimal()
+}
 ```
 
