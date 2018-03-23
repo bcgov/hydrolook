@@ -21,17 +21,17 @@
 #'
 #' @examples
 #' \dontrun{
-#' station_status("08MF005",print_url = TRUE)
+#' check_water_office_status("08MF005",print_url = TRUE)
 #'
 #' ## to get around 20 station limit for the water office
 #' if (require("purrr")) {
 #' stns <- tidyhydat::realtime_stations(prov_terr_state_loc = "BC")
 #' stns_split <- split(stns$STATION_NUMBER, (seq(length(stns$STATION_NUMBER))) %/% 20)
-#' map_dfr(stns_split, ~ station_status(.x))
+#' map_dfr(stns_split, ~ check_water_office_status(.x))
 #' }
 #' }
 #'
-station_status <- function(station_number, print_url = FALSE, copy_url = FALSE){
+check_water_office_status <- function(station_number, print_url = FALSE, copy_url = FALSE){
 
   if(length(station_number) > 20) stop("Can only request 20 stations at a time")
 
