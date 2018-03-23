@@ -4,5 +4,5 @@
 
 ^CONTRIBUTING\.md$
 ^CODE_OF_CONDUCT\.md$
-
 report/
+^\.travis\.yml$
