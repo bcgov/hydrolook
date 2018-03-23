@@ -10,15 +10,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and limitations under the License.
 
-#' @importFrom tibble tibble
+
 #' @importFrom readr read_csv
 #' @importFrom readr cols
 #' @importFrom xml2 read_html
 #' @importFrom lubridate dmy_hm
 #' @importFrom sf filter.sf
 #' @importFrom methods as
+#' @importFrom tibble tibble
 #' @import ggplot2
-#' @import ggraph
 #' @import tidyr
 #' @import dplyr
 #' @import knitr

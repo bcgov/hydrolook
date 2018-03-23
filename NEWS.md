@@ -1,3 +1,9 @@
+# hydrolook 0.1.9
+* added travis
+* simplified net_diag report by using only basic tools
+* general package tidying
+* removed the following functions: check_stn_gap.R, network_correlation.R
+
 # hydrolook 0.1.8
 * Better identification of path through `here::here()`
 * Fixes bug identified in #8; applied to all functions
