@@ -5,6 +5,8 @@ date: "Generated on: `r Sys.Date()` "
 output:
   pdf_document:
     fig_caption: yes
+  html_document:
+    fig_caption: yes
 params:
   table_format:
     value: latex
