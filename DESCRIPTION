@@ -17,6 +17,7 @@ Imports:
     knitr,
     lubridate,
     methods,
+    purrr,
     readr,
     rmarkdown,
     rvest,
