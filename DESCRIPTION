@@ -8,13 +8,8 @@ License: file LICENSE
 Depends: 
     R (>= 3.4.0)
 Imports: 
-    bcmaps,
-    cowplot,
     dplyr,
-    ggplot2,
     here,
-    kableExtra,
-    knitr,
     lubridate,
     methods,
     purrr,
@@ -27,6 +22,15 @@ Imports:
     tidyr,
     tibble,
     xml2
+Suggests:
+    bcmaps,
+    zoo,
+    cowplot,
+    ggplot2,
+    kableExtra,
+    knitr,
+    zoo,
+    ggrepel
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
