@@ -34,9 +34,18 @@ report_station = function(output_type = "pdf", STATION_NUMBER = NULL){
     stop('output_type must be "pdf" or "html"')
   }
 
-  dir_here <- here::here("report/station_reports")
+  ## Create organize fill structure
+  stn <- tidyhydat::hy_stations(STATION_NUMBER)
 
-  rmarkdown::render(system.file("templates", "station_report.Rmd", package="hydrolook"),
+  dir_here <- file.path("report/station_reports", paste0(stn$STATION_NUMBER," ",stn$STATION_NAME))
+
+  if(!dir.exists(dir_here)) {
+    dir.create(dir_here)
+  }
+
+  input_path <- system.file("templates", "station_report.Rmd", package="hydrolook")
+
+  rmarkdown::render(input_path,
                     output_format = paste0(output_type,"_document"),
                     params = list(
                       table_format = ifelse(output_type == "pdf","latex","html"),

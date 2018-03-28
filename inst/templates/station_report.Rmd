@@ -50,7 +50,7 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,
 ## For testing
 #params <- tibble(stns = "08MF005")
 ## A station not in hydat
-#params <- tibble(stns = "08HF014")
+#params <- tibble(stns = "07FC001")
 
 ## Create station header
 stn_header <- allstations %>%
@@ -69,7 +69,8 @@ provides basic information on a hydrometric station.
 rl_data <- realtime_dd(station_number = params$stns)
 
 rl_data_day <- rl_data %>%
-  realtime_daily_mean()
+  realtime_daily_mean() %>%
+  filter(Parameter == "Flow")
 
 HIST_FLOW <- hy_daily_flows(station_number = params$stns)
 ```
@@ -96,9 +97,15 @@ tbl_flow <- HIST_FLOW %>%
   filter(year(Date) == year(Sys.Date())) %>%
   select(Date, Value, Rank, Q7_day, Rank7day, Symbol)
 
-colnames(tbl_flow) <- c("Date","Daily Discharge","Daily Rank", "7 Day Discharge", "7 Day Rank","Symbol")
+col_vector <- c("Date","Daily Discharge","Daily Rank", "7 Day Discharge", "7 Day Rank","Symbol")
 
+colnames(tbl_flow) <- col_vector
+  
 
+if(nrow(tbl_flow) == 0){
+  tbl_flow <- as.data.frame(t(matrix(rep(NA, length(col_vector)), byrow = FALSE)))
+  colnames(tbl_flow) <- col_vector
+}
 
 kable(cbind(tbl_flow,range), format = "latex", booktabs = T) %>%
   kable_styling(font_size = 6, latex_options = c("HOLD_position")) %>%
@@ -186,7 +193,7 @@ rl_plt <- rl_data_day %>%
   geom_path() +
   geom_point() +
   theme_minimal() +
-  labs(title = "Last Thirty Days")
+  labs(title = "Last Thirty Days", y = "Discharge (m^3/s)") 
 
 ```
 
