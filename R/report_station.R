@@ -22,15 +22,13 @@
 #'
 #' @examples
 #' \donttest{
-#' station_report(output_type = "pdf", STATION_NUMBER = "08EB005")
-#' station_report(output_type = "pdf", STATION_NUMBER = "08MF005")
-#' station_report(output_type = "pdf", STATION_NUMBER = "07EA005")
+#' report_station(output_type = "pdf", STATION_NUMBER = "08EB005")
+#' report_station(output_type = "pdf", STATION_NUMBER = "08MF005")
+#' report_station(output_type = "pdf", STATION_NUMBER = "07EA005")
 #' }
 #'
 #'
-station_report = function(output_type = "pdf", STATION_NUMBER = NULL){
-
-  if(!requireNamespace("bcmaps")) stop("bcmaps needs to be installed for this function to work properly. See https://github.com/bcgov/bcmaps")
+report_station = function(output_type = "pdf", STATION_NUMBER = NULL){
 
   if(!output_type %in% c("pdf","html")){
     stop('output_type must be "pdf" or "html"')

@@ -45,11 +45,11 @@ Example
 This is a basic example of `hydrolook` usage. Reports are written in rmarkdown format and are generated using report specific commands. For example, if we wanted to generate the Net\_diag report we could use the following command:
 
 ``` r
-realtime_lag_report(output_type = "pdf", PROV_TERR_STATE_LOC = "AB")
+report_realtime_lag(output_type = "pdf", PROV_TERR_STATE_LOC = "AB")
 
-station_report(output_type = "pdf", STATION_NUMBER = "08MF005")
+report_station(output_type = "pdf", STATION_NUMBER = "08MF005")
 
-net_diag_report(output_type = "pdf", PROV_TERR_STATE_LOC = "PE")
+report_net_diagnostic(output_type = "pdf", PROV_TERR_STATE_LOC = "PE")
 ```
 
 Project Status

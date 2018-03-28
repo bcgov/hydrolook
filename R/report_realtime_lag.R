@@ -13,7 +13,7 @@
 
 #' @title Generate diagnostic report
 #'
-#' @inheritParams net_diag_report
+#' @inheritParams report_net_diagnostic
 #'
 #' @description run this command to render the realtime report. The reports are then outputted to the report folder
 #'

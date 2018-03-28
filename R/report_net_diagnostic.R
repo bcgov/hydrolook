@@ -22,11 +22,11 @@
 #' @family report_generators
 #' @examples
 #' \dontrun{
-#' net_diag_report(output_type = "pdf", PROV_TERR_STATE_LOC = "PE")
+#' report_net_diagnostic(output_type = "pdf", PROV_TERR_STATE_LOC = "PE")
 #' }
 
 
-net_diag_report <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC") {
+report_net_diagnostic <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC") {
 
   if(!output_type %in% c("pdf","html")){
     stop('output_type must be "pdf" or "html"')
