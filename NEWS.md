@@ -1,6 +1,7 @@
 # hydrolook 0.1.9
 * added travis
 * simplified net_diag report by using only basic tools; works with html and pdf
+* better map for report_station
 * general package tidying
 * removed the following functions: check_stn_gap.R, network_correlation.R
 
