@@ -20,6 +20,9 @@ language: R
 sudo: false
 cache: packages
 
+r_github_packages:
+  - cran/sf
+
 notifications:
   email:
     on_success: never
