@@ -21,14 +21,13 @@ Imports:
     tidyhydat,
     tidyr,
     tibble,
-    xml2
+    xml2,
+    knitr,
+    ggplot2
 Suggests:
     bcmaps,
-    zoo,
     cowplot,
-    ggplot2,
     kableExtra,
-    knitr,
     zoo,
     ggrepel
 VignetteBuilder: knitr
