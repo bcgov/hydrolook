@@ -5,6 +5,7 @@
 * general package tidying
 * station functions check and return an error if report packages aren't installed.
 * removed the following functions: check_stn_gap.R, network_correlation.R
+* addition of regional streamflow reports
 
 # hydrolook 0.1.8
 * Better identification of path through `here::here()`
