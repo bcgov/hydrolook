@@ -45,6 +45,8 @@ report_station = function(output_type = "pdf", STATION_NUMBER = NULL){
 
   input_path <- system.file("templates", "station_report.Rmd", package="hydrolook")
 
+  check_report_packages(input_path)
+
   rmarkdown::render(input_path,
                     output_format = paste0(output_type,"_document"),
                     params = list(

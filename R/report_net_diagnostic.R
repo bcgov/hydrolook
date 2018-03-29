@@ -34,6 +34,7 @@ report_net_diagnostic <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC
 
   input_path = system.file("templates", "net_diag.Rmd", package="hydrolook")
 
+  check_report_packages(input_path)
 
   dir_here <- here::here("report/net_diag")
 
