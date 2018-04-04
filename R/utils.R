@@ -11,15 +11,24 @@
 # See the License for the specific language governing permissions and limitations under the License.
 
 
+check_package_installation <- function(libs_needed) {
 
-create_namespace_check <- function(library_eval){
+  ## Logical vector of installation status
+  pkgs <- vapply(libs_needed, requireNamespace, quietly = TRUE, FUN.VALUE = logical(1))
 
-  if(!is.element(library_eval, utils::installed.packages()[,1])){
-    stop(paste0(library_eval, " needs to be installed"), call. = FALSE)
+  ## Which packages are not installed
+  pkgs <- pkgs[which(pkgs == FALSE)]
+
+  ## Extract the names of the logical vector
+  pkgs <- names(pkgs)
+
+  if(length(pkgs) > 0) {
+    message("The ",paste0(pkgs, collapse = ", ")," package(s) need to be installed to run this report.")
+    message("Paste the following into the console to install the missing packages: install.packages(c(",
+            paste0(sprintf("'%s'", pkgs), collapse = ","),"))")
   }
 
 }
-
 
 check_report_packages <- function(input_path){
 
@@ -33,7 +42,8 @@ check_report_packages <- function(input_path){
   ## Clean so that it is just the names
   libs_needed <- gsub("\\)", "", gsub("library\\(","",raw_rmarkdown[start:end]))
 
-  lapply(libs_needed, create_namespace_check)
+  check_package_installation(libs_needed)
+
 }
 
 
