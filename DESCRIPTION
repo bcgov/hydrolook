@@ -9,6 +9,7 @@ Depends:
     R (>= 3.4.0)
 Imports: 
     dplyr,
+    lubridate,
     methods,
     purrr,
     readr,
@@ -16,15 +17,9 @@ Imports:
     rvest,
     tidyhydat,
     tidyr,
-    xml2,
-    knitr,
-    ggplot2
+    xml2   
 Suggests: 
-    bcmaps,
-    cowplot,
-    kableExtra,
-    zoo,
-    ggrepel,
+    knitr,
     testthat
 VignetteBuilder: knitr
 Encoding: UTF-8
