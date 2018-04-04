@@ -20,6 +20,7 @@ NULL
     utils::globalVariables(
       # Vars used in Non-Standard Evaluations, declare here to avoid CRAN warnings
       c("Raw_var", "date_time", "Date", "Time", "filename","Parameter",
+        "STATION_NUMBER","PROV_TERR_STATE_LOC","V1",
         "." # piping requires '.' at times
       )
     )
