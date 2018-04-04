@@ -2,7 +2,6 @@
 output:
   pdf_document:
     fig_caption: yes
-    template: streamflow_report_template.tex
   html_document:
     toc: true
     fig_caption: yes
@@ -14,6 +13,18 @@ params:
   table_format:
     value: latex
 geometry: margin=2cm
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage[table]{xcolor}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
 ---
 
 ---
@@ -30,16 +41,24 @@ library(rmapshaper)
 library(kableExtra)
 library(knitr)
 library(RcppRoll)
+library(ggrepel)
 ```
-
-
-## UPDATE
-This is a space where you could enter some test specific to this time period. 
+ 
 ```{r setup, include=FALSE}
 
-opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
-                      fig.path = file.path("report/regional_streamflow"))
+## Knitr options dependent on type of document
+if(params$table_format == "latex"){
+  opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
+                      fig.width = 8, fig.height = 8, fig.path = file.path("report/regional_streamflow/"))
+}
 
+if(params$table_format == "html"){
+  opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
+                      fig.width = 8, fig.height = 8)
+}
+
+options(knitr.table.format = params$table_format)
+#params <- tibble(region = "Skeena Natural Resource Region")
 ```
 
 
@@ -111,6 +130,20 @@ region_watershed <- st_intersection(select(nr_regions_sub, SHAPE), wsc_drainages
   ms_simplify()
 
 stns_region <- st_join(stns_sf, nr_regions_sub, left = FALSE) 
+
+city <- bc_cities() %>%
+  st_join(region_borders, left = FALSE) %>%
+  filter(POP_2000 == max(POP_2000)) %>%
+  rename(geometry = SHAPE) %>%
+  mutate(
+    CENTROID = map(geometry, st_centroid),
+    COORDS = map(CENTROID, st_coordinates),
+    COORDS_X = map_dbl(COORDS, 1),
+    COORDS_Y = map_dbl(COORDS, 2)
+  ) %>%
+  as_tibble() %>%
+  st_sf() 
+
 ```
 
 ```{r analysis_instant, cache=TRUE}
@@ -143,15 +176,13 @@ hist_flow <- hy_daily_flows(q_stns)
 
 ## Percentiles of Historical Flow
 
-The information is taken from real time data recorded at WSC stations and is based on percentiles of long term  historical flows for that day. 
-
-A percentile is a value on a scale of one hundred that indicates the percent of a distribution that is equal to or below it. For example, on the map of daily streamflow conditions a river discharge at the 90th percentile is equal to or greater than 90 percent of the discharge values recorded on this day of the year during all years that measurements have been made.  In general:
+The information is taken from real time data recorded at WSC stations and is based on percentiles of long term  historical flows for that day. A percentile is a value on a scale of one hundred that indicates the percent of a distribution that is equal to or below it. In general:
 
 - A streamflow which is greater than the 75th percentile is considered above normal
 - A streamflow which is between 25th and 75th percentiles is considered normal
 - A streamflow which is less than the 25 percentile is considered below normal
 - A  Streamflow which is  less than 10 percentile is considered much below normal
-- The flow category “Low” indicates that the estimated streamflow is the lowest value ever measured for the day of the year
+- The flow category "Low" indicates that the estimated streamflow is the lowest value ever measured for the day of the year
 
 Below are the maps with percentile data  for  WSC stations, however please keep in mind that watersheds with no real-time stations but  with similar characteristics  will likely have similar overall streamflow flow patterns.
 
@@ -191,7 +222,7 @@ hist_flow_7day_mean <- hist_flow %>%
 
 ```{r calc_perc}
   ## Expected NAWW percentile bins
-  expected <- c("Not ranked", "Low","Much below normal (<10)", 
+expected <- c("Not ranked", "Low","Much below normal (<10)", 
    "Below Normal (10-24)", "Normal (25-75)", 
    "Above normal (76-90)","Much above normal (>90)", "High")
 
@@ -218,6 +249,10 @@ ggplot() +
   geom_sf(data = region_rivers, col = "blue") +
   geom_sf(data = pct_flow_instant, aes(colour = pct_bin, fill = pct_bin), size = 2) +
   #guides(colour = guide_legend(override.aes = list(size = 9, shape=15))) +
+  geom_text_repel(city, mapping = aes(COORDS_X, COORDS_Y, label = NAME), 
+                           size = 3, min.segment.length = 0) +
+  geom_point(city, mapping = aes(COORDS_X, COORDS_Y), 
+                           size = 3, shape = 17) +
   scale_colour_manual(name = "Streamflow Conditions", values = named_naww_pal, drop = FALSE) +
   scale_fill_manual(name = "Streamflow Conditions", values = named_naww_pal, drop = FALSE) +
   labs(x = NULL, y = NULL, 
@@ -264,7 +299,7 @@ if(params$table_format == "latex"){
   pct_flow_instant_tbl_data %>%
     arrange(STATION_NAME) %>%
     kable(format = "latex", booktabs = T, digits = 1) %>%
-    kable_styling(font_size = 4,latex_options = c("HOLD_position"))
+    kable_styling(font_size = 5,latex_options = c("HOLD_position"))
 }
 
 if(params$table_format == "html"){
@@ -289,7 +324,7 @@ much_below_normal_tbl <- pct_flow_instant %>%
 if(params$table_format == "latex"){
   much_below_normal_tbl %>%
     kable(format = "latex", booktabs = T, digits = 2) %>%
-    kable_styling(font_size = 6,latex_options = c("HOLD_position"))
+    kable_styling(font_size = 7,latex_options = c("HOLD_position"))
 }
 
 if(params$table_format == "html"){
@@ -302,9 +337,7 @@ if(params$table_format == "html"){
 
 ## Long-term Mean Annual Discharge (%MAD)
 
-Long-Term  Mean Annual Discharge (% MAD)
-
-Flow needs during the  summer will range from juvenile rearing flows near 10-20 % (preferred) MAD to adult salmon/char passage flows  (>20%LT MAD) required prior to spawning.  Sub-standard flows (<10%LT MAD) can affect fish populations by reducing the area and quality of riffle habitats that generate fish food and aeration.  Flows nearing 5%LT MAD  are considered suboptimal for fish rearing and migration, indicate a degradation of instream habitat and may require  restrictions on water use. Any stations showing values of less than 5% MAD are highlighted in RED (not yet!).
+Flow needs during the  summer will range from juvenile rearing flows near 10-20 % (preferred) MAD to adult salmon/char passage flows  (>20%LT MAD) required prior to spawning.  Sub-standard flows (<10%LT MAD) can affect fish populations by reducing the area and quality of riffle habitats that generate fish food and aeration.  Flows nearing 5%LT MAD  are considered suboptimal for fish rearing and migration, indicate a degradation of instream habitat and may require  restrictions on water use. 
 
 ```{r mad}
 ## Calculate %MAD
@@ -317,13 +350,14 @@ long_term_mad <- hy_annual_stats(q_stns) %>%
   mutate(`% MAD` = (Value/`MEAN MAD (m^3/s)`)*100) %>%
   left_join(allstations[,1:2], by = c("STATION_NUMBER")) %>%
   select(STATION_NAME, STATION_NUMBER, Value, `MEAN MAD (m^3/s)`, `% MAD`) %>%
-  rename(`Latest Q` = Value) 
+  rename(`Latest Q` = Value) %>%
+  arrange(`% MAD`)
 
 if(params$table_format == "latex"){
    long_term_mad %>%
     arrange(STATION_NAME) %>%
     kable(format = "latex", booktabs = T, digits = 2) %>%
-    kable_styling(font_size = 6,latex_options = c("HOLD_position"))
+    kable_styling(font_size = 7,latex_options = c("HOLD_position"))
 }
 
 if(params$table_format == "html"){
