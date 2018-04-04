@@ -24,12 +24,13 @@ Imports:
     xml2,
     knitr,
     ggplot2
-Suggests:
+Suggests: 
     bcmaps,
     cowplot,
     kableExtra,
     zoo,
-    ggrepel
+    ggrepel,
+    testthat
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
