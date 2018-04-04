@@ -46,8 +46,19 @@ library(ggrepel)
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and limitations under the License.
 
-opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
-                      fig.path = file.path("report/station_reports"))
+
+## Knitr options dependent on type of document
+if(params$table_format == "latex"){
+  opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
+                      fig.width = 8, fig.height = 8, fig.path = file.path("report/station_report/"))
+}
+
+if(params$table_format == "html"){
+  opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
+                      fig.width = 8, fig.height = 8)
+}
+
+options(knitr.table.format = params$table_format)
 
 ## For testing
 #params <- tibble(stns = "08MF005")

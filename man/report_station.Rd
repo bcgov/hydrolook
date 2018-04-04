@@ -27,5 +27,6 @@ report_station(output_type = "pdf", STATION_NUMBER = "07EA005")
 
 }
 \seealso{
-Other report_generators: \code{\link{report_net_diagnostic}}
+Other report_generators: \code{\link{report_net_diagnostic}},
+  \code{\link{report_regional_streamflow}}
 }
