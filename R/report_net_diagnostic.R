@@ -36,7 +36,7 @@ report_net_diagnostic <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC
 
   check_report_packages(input_path)
 
-  dir_here <- here::here("report/net_diag")
+  dir_here <- file.path("report/net_diag")
 
   if(!dir.exists(dir_here)){
     dir.create(dir_here, recursive = TRUE)
@@ -48,8 +48,8 @@ report_net_diagnostic <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC
   wo_status <- purrr::map_dfr(stns_split, ~ check_water_office_status(.x))
   wo_status$Date <- Sys.time()
 
-  if(file.exists(here::here("report/net_diag", "water_office_record.csv"))){
-    existing_wo_status <- readr::read_csv(here::here("report/net_diag", "water_office_record.csv"))
+  if(file.exists(file.path("report/net_diag", "water_office_record.csv"))){
+    existing_wo_status <- readr::read_csv(file.path("report/net_diag", "water_office_record.csv"))
     wo_status <- dplyr::bind_rows(existing_wo_status, wo_status)
   }
 
@@ -66,7 +66,7 @@ report_net_diagnostic <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC
                     output_dir = dir_here)
 
   ## Only output status if rendering if successful
-  readr::write_csv(wo_status, here::here("report/net_diag", "water_office_record.csv"))
+  readr::write_csv(wo_status, file.path("report/net_diag", "water_office_record.csv"))
 
 
 

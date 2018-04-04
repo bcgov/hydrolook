@@ -9,18 +9,13 @@ Depends:
     R (>= 3.4.0)
 Imports: 
     dplyr,
-    here,
-    lubridate,
     methods,
     purrr,
     readr,
     rmarkdown,
     rvest,
-    sf,
-    sp,
     tidyhydat,
     tidyr,
-    tibble,
     xml2,
     knitr,
     ggplot2

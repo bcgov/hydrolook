@@ -10,23 +10,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and limitations under the License.
 
-
-#' @importFrom readr read_csv
-#' @importFrom readr cols
-#' @importFrom xml2 read_html
-#' @importFrom lubridate dmy_hm
-#' @importFrom sf filter.sf
-#' @importFrom methods as
-#' @importFrom tibble tibble
-#' @import ggplot2
-#' @import tidyr
-#' @import dplyr
-#' @import knitr
-#' @import rmarkdown
-#' @import rvest
-# @import tidyhydat
-# @import kableExtra
-#'
+#' @importFrom dplyr %>%
 NULL
 
 # Removes notes from R CMD check for NSE

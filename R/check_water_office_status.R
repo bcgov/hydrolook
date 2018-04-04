@@ -55,7 +55,7 @@ check_water_office_status <- function(station_number, print_url = FALSE, copy_ur
   search_results <- rvest::html_nodes(html, "td")
   search_results <- rvest::html_text(search_results)
   search_results <- matrix(search_results, nrow = length(station_number), byrow = TRUE)
-  search_results <- tibble::as_tibble(search_results)
+  search_results <- dplyr::as_tibble(search_results)
   search_results <- dplyr::select(search_results, -V1)
 
   colnames(search_results) <- c("STATION_NAME", "PROV_TERR_STATE_LOC","STATION_NUMBER", "DATA_LAST_SIX_HOURS","OPERATION_SCHEDULE")

@@ -2,7 +2,7 @@
 * added travis
 * simplified net_diag report by using only basic tools; works with html and pdf
 * better map for report_station
-* general package tidying
+* general package tidying; removing many package dependencies
 * station functions check and return an error if report packages aren't installed.
 * removed the following functions: check_stn_gap.R, network_correlation.R
 * addition of regional streamflow reports

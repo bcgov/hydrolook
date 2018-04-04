@@ -140,7 +140,7 @@ check_realtime_lag <- function(station_number = NULL, prov_terr_state_loc = NULL
 
 
     ### Pull everything together
-    lag <- tibble::tibble(
+    lag <- dplyr::tibble(
       STATION_NUMBER = STATION_NUMBER_SEL,
       time_obs = time_obs,
       time_mod = time_mod
