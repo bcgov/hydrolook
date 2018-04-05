@@ -24,7 +24,7 @@
 #' @export
 
 
-realtime_lag_report <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC") {
+report_realtime_lag <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC") {
 
   if(!output_type %in% c("pdf","html")){
     stop('output_type must be "pdf" or "html"')
@@ -33,7 +33,7 @@ realtime_lag_report <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC")
 
   input_path = system.file("templates", "realtime_lag.Rmd", package="hydrolook")
 
-  dir_here <- file.path("report/Realtime_lag")
+  dir_here <- file.path("report/realtime_lag")
 
   rmarkdown::render(input = input_path,
                     output_format = paste0(output_type,"_document"),
