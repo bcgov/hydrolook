@@ -28,7 +28,7 @@ header-includes:
 ---
 
 ---
-title: "`r params$region` on `r params$date` "
+title: "`r params$region`"
 ---
 
 ```{r packages, include=FALSE}
@@ -87,6 +87,7 @@ calc_percentiles <- function(historical_flow, realtime_data) {
       prctile == 1 ~ "High"
     )) %>%
     mutate(pct_bin = factor(pct_bin, levels = expected)) %>%
+    mutate(prctile = prctile*100) %>%
     st_as_sf(coords = c("LONGITUDE", "LATITUDE"),
              crs= 4326,
              agr= "constant") %>%
@@ -173,6 +174,10 @@ rl_data_instant <- rl_data %>%
 hist_flow <- hy_daily_flows(q_stns)
 ```
 
+This report was generated on
+```{r, results='asis'}
+cat(format(Sys.Date(), '%d %B, %Y'))
+```
 
 ## Percentiles of Historical Flow
 
@@ -184,8 +189,7 @@ The information is taken from real time data recorded at WSC stations and is bas
 - A  Streamflow which is  less than 10 percentile is considered much below normal
 - The flow category "Low" indicates that the estimated streamflow is the lowest value ever measured for the day of the year
 
-Below are the maps with percentile data  for  WSC stations, however please keep in mind that watersheds with no real-time stations but  with similar characteristics  will likely have similar overall streamflow flow patterns.
-
+Below are the maps with percentile data for WSC stations:
 
 ```{r 24h}
 ## Find the average of the last 24 hours
@@ -292,19 +296,18 @@ pct_flow_instant_tbl_data <- pct_flow_instant %>%
               filter(Date == Sys.Date()) %>%
               select(STATION_NUMBER, prctile) %>%
               rename(`%tile-7day_mean` = prctile)) %>%
-  left_join(num_year_data, by = c("STATION_NUMBER")) 
+  left_join(num_year_data, by = c("STATION_NUMBER")) %>%
+  arrange(STATION_NUMBER)
 
 
 if(params$table_format == "latex"){
   pct_flow_instant_tbl_data %>%
-    arrange(STATION_NAME) %>%
     kable(format = "latex", booktabs = T, digits = 1) %>%
     kable_styling(font_size = 5,latex_options = c("HOLD_position"))
 }
 
 if(params$table_format == "html"){
   pct_flow_instant_tbl_data %>%
-    arrange(STATION_NAME) %>%
     kable(format = "html", digits = 2) %>%
     kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 }
@@ -313,13 +316,14 @@ if(params$table_format == "html"){
 
 
 ## Stations **much below normal**
-I also included a table Indicating which locations currently have a Much Below Normal or Low status, so if a location is not listed there are no immediate low streamflow concerns. 
+If a location is not listed here there are no immediate low streamflow concerns. 
 ```{r}
 much_below_normal_tbl <- pct_flow_instant %>%
   filter(pct_bin %in% c("Low","Much below normal (<10)")) %>%
   st_set_geometry(NULL) %>%
   select(STATION_NAME, STATION_NUMBER, Value, prctile) %>%
-  rename(`Latest Q` = Value, `%tile` = prctile)
+  rename(`Latest Q` = Value, `%tile` = prctile) %>%
+  arrange(STATION_NUMBER)
 
 if(params$table_format == "latex"){
   much_below_normal_tbl %>%
@@ -351,27 +355,21 @@ long_term_mad <- hy_annual_stats(q_stns) %>%
   left_join(allstations[,1:2], by = c("STATION_NUMBER")) %>%
   select(STATION_NAME, STATION_NUMBER, Value, `MEAN MAD (m^3/s)`, `% MAD`) %>%
   rename(`Latest Q` = Value) %>%
-  arrange(`% MAD`)
+  arrange(STATION_NUMBER)
 
 if(params$table_format == "latex"){
    long_term_mad %>%
-    arrange(STATION_NAME) %>%
     kable(format = "latex", booktabs = T, digits = 2) %>%
     kable_styling(font_size = 7,latex_options = c("HOLD_position"))
 }
 
 if(params$table_format == "html"){
    long_term_mad %>%
-    arrange(STATION_NAME) %>%
     kable(format = "html", digits = 2) %>%
     kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 }
-
 ```
 
 
-This report was generated on
-```{r, results='asis'}
-cat(format(Sys.Date(), '%d %B, %Y'))
-```
+
 
