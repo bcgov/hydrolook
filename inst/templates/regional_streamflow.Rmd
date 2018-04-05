@@ -1,0 +1,375 @@
+---
+output:
+  pdf_document:
+    fig_caption: yes
+  html_document:
+    toc: true
+    fig_caption: yes
+params:
+  region:
+    value: "West Coast Natural Resource Region"
+  date:
+    value: !r Sys.Date()
+  table_format:
+    value: latex
+geometry: margin=2cm
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage[table]{xcolor}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+---
+
+---
+title: "`r params$region`"
+---
+
+```{r packages, include=FALSE}
+library(tidyverse)
+library(bcmaps)
+library(tidyhydat)
+library(lubridate)
+library(sf)
+library(rmapshaper)
+library(kableExtra)
+library(knitr)
+library(RcppRoll)
+library(ggrepel)
+```
+ 
+```{r setup, include=FALSE}
+
+## Knitr options dependent on type of document
+if(params$table_format == "latex"){
+  opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
+                      fig.width = 8, fig.height = 8, fig.path = file.path("report/regional_streamflow/"))
+}
+
+if(params$table_format == "html"){
+  opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
+                      fig.width = 8, fig.height = 8)
+}
+
+options(knitr.table.format = params$table_format)
+#params <- tibble(region = "Skeena Natural Resource Region")
+```
+
+
+```{r functions}
+## Calculate percentiles from tidyhydat extracted data
+## Limited to current day calculation
+calc_percentiles <- function(historical_flow, realtime_data) {
+  
+  if(class(realtime_data$Date) != "Date") stop("Date column is not in date class")
+  
+  historical_flow %>%
+    filter(yday(Date) == yday(Sys.Date())) %>%
+    group_by(STATION_NUMBER) %>%
+    nest() %>%
+    left_join(realtime_data, by = c("STATION_NUMBER")) %>%
+    mutate(prctile = map2_dbl(data, Value, ~ecdf(.x$Value)(.y))) %>%
+    left_join(allstations, by = c("STATION_NUMBER")) %>%
+    mutate(pct_bin = case_when(
+      is.na(prctile) ~ "Not ranked",
+      prctile >= 0 & prctile <= 0.01 ~ "Low",
+      prctile > 0.01 & prctile <= 0.10 ~ "Much below normal (<10)",
+      prctile > 0.10 & prctile <= 0.24 ~ "Below Normal (10-24)",
+      prctile > 0.24 & prctile <= 0.75 ~ "Normal (25-75)",
+      prctile > 0.75 & prctile <= 0.90 ~ "Above normal (76-90)",
+      prctile > 0.90 & prctile < 1 ~ "Much above normal (>90)",
+      prctile == 1 ~ "High"
+    )) %>%
+    mutate(pct_bin = factor(pct_bin, levels = expected)) %>%
+    mutate(prctile = prctile*100) %>%
+    st_as_sf(coords = c("LONGITUDE", "LATITUDE"),
+             crs= 4326,
+             agr= "constant") %>%
+    transform_bc_albers()
+}
+```
+
+
+```{r load}
+## For testing
+#params <- tibble(date = Sys.Date(),region = "West Coast Natural Resource Region")
+
+## Load realtime stations and convert to spatial object
+stns_sf <-  st_as_sf(
+    realtime_stations(prov_terr_state_loc = "BC"),
+    coords = c("LONGITUDE", "LATITUDE"),
+    crs = 4326,
+    agr = "constant"
+  ) %>%
+  transform_bc_albers()
+```
+
+
+```{r clean}
+### Spatial Cleaning
+
+## Choose the correct region
+nr_regions_sub <- filter(nr_regions(), ORG_UNIT_NAME == params$region) 
+
+
+## Find the inters
+region_borders <- st_intersection(nr_regions_sub, bc_bound_hres()) 
+
+region_rivers <- st_intersection(nr_regions_sub, watercourses_5M())
+
+wsc_drainages <- ms_simplify(wsc_drainages())
+
+region_watershed <- st_intersection(select(nr_regions_sub, SHAPE), wsc_drainages()) %>%
+  group_by(SUB_DRAINAGE_AREA_NAME) %>%
+  summarise() %>%
+  ms_simplify()
+
+stns_region <- st_join(stns_sf, nr_regions_sub, left = FALSE) 
+
+city <- bc_cities() %>%
+  st_join(region_borders, left = FALSE) %>%
+  filter(POP_2000 == max(POP_2000)) %>%
+  rename(geometry = SHAPE) %>%
+  mutate(
+    CENTROID = map(geometry, st_centroid),
+    COORDS = map(CENTROID, st_coordinates),
+    COORDS_X = map_dbl(COORDS, 1),
+    COORDS_Y = map_dbl(COORDS, 2)
+  ) %>%
+  as_tibble() %>%
+  st_sf() 
+
+```
+
+```{r analysis_instant, cache=TRUE}
+## All stations from the specified region, that are flow and 
+## have a record longer than 20 years
+q_stns <- unique(stns_region$STATION_NUMBER) %>%
+  hy_stn_data_range() %>%
+  filter(DATA_TYPE == "Q") %>%
+  filter(RECORD_LENGTH >=20) %>%
+  pull(STATION_NUMBER)
+
+## Query realtime data
+rl_data <- realtime_dd(q_stns)
+
+## Find most recent instantaneous discharge value
+rl_data_instant <- rl_data %>%
+  filter(Parameter == "Flow") %>%
+  group_by(STATION_NUMBER) %>%
+  filter(Date == max(Date)) %>%
+  select(STATION_NUMBER, Date, Value) %>%
+  mutate(Date = as.Date(Date)) %>%
+  filter(Date == Sys.Date()) %>% ## drop max values that aren't today
+  ungroup()
+
+## Queery historical data
+## NOTE: Should this be done with rl_data_recent$STATION_NUMBER?
+hist_flow <- hy_daily_flows(q_stns)
+```
+
+This report was generated on
+```{r, results='asis'}
+cat(format(Sys.Date(), '%d %B, %Y'))
+```
+
+## Percentiles of Historical Flow
+
+The information is taken from real time data recorded at WSC stations and is based on percentiles of long term  historical flows for that day. A percentile is a value on a scale of one hundred that indicates the percent of a distribution that is equal to or below it. In general:
+
+- A streamflow which is greater than the 75th percentile is considered above normal
+- A streamflow which is between 25th and 75th percentiles is considered normal
+- A streamflow which is less than the 25 percentile is considered below normal
+- A  Streamflow which is  less than 10 percentile is considered much below normal
+- The flow category "Low" indicates that the estimated streamflow is the lowest value ever measured for the day of the year
+
+Below are the maps with percentile data for WSC stations:
+
+```{r 24h}
+## Find the average of the last 24 hours
+rl_data_last24 <- rl_data %>%
+  filter(Parameter == "Flow") %>%
+  group_by(STATION_NUMBER) %>%
+  filter(Date >= Sys.time() - 60*60*24) %>% ## all data from last 24 hours
+  select(STATION_NUMBER, Date, Value) %>%
+  mutate(Date = Sys.Date()) %>% ## label last twenty four hours as from today
+  group_by(Date, STATION_NUMBER) %>%
+  summarise(Value = mean(Value)) %>%
+  ungroup()
+```
+
+
+```{r 7day}
+## Realtime 7 day average
+## I took the realtime daily averages
+rl_data_7day_mean <- rl_data %>%
+  filter(Parameter == "Flow") %>%
+  mutate(Date = as.Date(Date)) %>%
+  group_by(Date, STATION_NUMBER) %>%
+  summarise(Value = mean(Value, na.rm = TRUE)) %>%
+  mutate(Value = roll_mean(Value, n = 7,na.rm = TRUE, fill = "right")) %>%
+  #filter(Date == Sys.Date()) %>%
+  ungroup()
+
+hist_flow_7day_mean <- hist_flow %>%
+  group_by(STATION_NUMBER) %>%
+  mutate(Value = roll_mean(Value, n = 7, na.rm = TRUE, fill = "right")) %>%
+  ungroup()
+```
+
+
+```{r calc_perc}
+  ## Expected NAWW percentile bins
+expected <- c("Not ranked", "Low","Much below normal (<10)", 
+   "Below Normal (10-24)", "Normal (25-75)", 
+   "Above normal (76-90)","Much above normal (>90)", "High")
+
+## Calculate instantaneous percentiles 
+pct_flow_instant <- calc_percentiles(hist_flow, rl_data_instant) 
+
+## Calculate 24 hours percentiles
+pct_flow_last24 <- calc_percentiles(hist_flow, rl_data_last24)
+
+pct_flow_7day_mean <- calc_percentiles(hist_flow_7day_mean, rl_data_7day_mean)
+```
+
+```{r output, fig.height = 5.8, fig.width=6.4, fig.align="center"}
+
+naww_pal <- c("#9c0ad1","#F90010","#B31F23","#FEA116","#08FA09","#46DED2","#0003F6","#000000")
+
+## Create a named vector
+named_naww_pal <- setNames(naww_pal, expected)
+
+
+ggplot() +
+  #geom_sf(data = region_borders, alpha = NA, fill = NA) +
+  geom_sf(data = region_watershed, alpha = NA, fill = NA) +
+  geom_sf(data = region_rivers, col = "blue") +
+  geom_sf(data = pct_flow_instant, aes(colour = pct_bin, fill = pct_bin), size = 2) +
+  #guides(colour = guide_legend(override.aes = list(size = 9, shape=15))) +
+  geom_text_repel(city, mapping = aes(COORDS_X, COORDS_Y, label = NAME), 
+                           size = 3, min.segment.length = 0) +
+  geom_point(city, mapping = aes(COORDS_X, COORDS_Y), 
+                           size = 3, shape = 17) +
+  scale_colour_manual(name = "Streamflow Conditions", values = named_naww_pal, drop = FALSE) +
+  scale_fill_manual(name = "Streamflow Conditions", values = named_naww_pal, drop = FALSE) +
+  labs(x = NULL, y = NULL, 
+       title = paste0(params$region),
+       subtitle = paste0("Data represent instantaneous streamflow data from ", params$date, " compared to historical data")) +
+  theme_minimal() + 
+  coord_sf(datum = NA) +
+  theme(plot.margin = margin(0,0,0,0))
+```
+
+### Percentile comparison
+The following are comparisons of three percentile aggregations:
+
+- %tile-instant is percentile of the most recent instantaneous discharge measurement from `r Sys.Date()` to the historical daily values
+- %tile-last24 is percentile of the average of the last 24 hours of discharge measurements to the historical daily values
+- %tile-7day_mean is percentile of the rolling 7 day average of daily mean discharge measurements to the 7 day rolling mean of the historical daily values. All 7 day means are calculated based on the **past 7 days**.
+
+These are evaluated separately in this document.
+
+```{r}
+num_year_data <- hy_stn_data_range(unique(pct_flow_instant$STATION_NUMBER)) %>%
+  filter(DATA_TYPE == "Q") %>%
+  select(STATION_NUMBER, RECORD_LENGTH) %>%
+  rename(`Record Length` = RECORD_LENGTH)
+
+## Grab only the latest flow and merge into one data frame
+pct_flow_instant_tbl_data <- pct_flow_instant %>%
+  st_set_geometry(NULL) %>%
+  select(STATION_NAME, STATION_NUMBER, Value, prctile) %>%
+  rename(`%tile-instant` = prctile, `Latest Q` = Value) %>%
+  left_join(pct_flow_last24 %>%
+              st_set_geometry(NULL) %>%
+              select(STATION_NUMBER, prctile) %>%
+              rename(`%tile-last24` = prctile)) %>%
+  left_join(pct_flow_7day_mean %>%
+              st_set_geometry(NULL) %>%
+              filter(Date == Sys.Date()) %>%
+              select(STATION_NUMBER, prctile) %>%
+              rename(`%tile-7day_mean` = prctile)) %>%
+  left_join(num_year_data, by = c("STATION_NUMBER")) %>%
+  arrange(STATION_NUMBER)
+
+
+if(params$table_format == "latex"){
+  pct_flow_instant_tbl_data %>%
+    kable(format = "latex", booktabs = T, digits = 1) %>%
+    kable_styling(font_size = 5,latex_options = c("HOLD_position"))
+}
+
+if(params$table_format == "html"){
+  pct_flow_instant_tbl_data %>%
+    kable(format = "html", digits = 2) %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+}
+  
+```
+
+
+## Stations **much below normal**
+If a location is not listed here there are no immediate low streamflow concerns. 
+```{r}
+much_below_normal_tbl <- pct_flow_instant %>%
+  filter(pct_bin %in% c("Low","Much below normal (<10)")) %>%
+  st_set_geometry(NULL) %>%
+  select(STATION_NAME, STATION_NUMBER, Value, prctile) %>%
+  rename(`Latest Q` = Value, `%tile` = prctile) %>%
+  arrange(STATION_NUMBER)
+
+if(params$table_format == "latex"){
+  much_below_normal_tbl %>%
+    kable(format = "latex", booktabs = T, digits = 2) %>%
+    kable_styling(font_size = 7,latex_options = c("HOLD_position"))
+}
+
+if(params$table_format == "html"){
+  much_below_normal_tbl %>%
+    kable(format = "html", digits = 2) %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+}
+
+```
+
+## Long-term Mean Annual Discharge (%MAD)
+
+Flow needs during the  summer will range from juvenile rearing flows near 10-20 % (preferred) MAD to adult salmon/char passage flows  (>20%LT MAD) required prior to spawning.  Sub-standard flows (<10%LT MAD) can affect fish populations by reducing the area and quality of riffle habitats that generate fish food and aeration.  Flows nearing 5%LT MAD  are considered suboptimal for fish rearing and migration, indicate a degradation of instream habitat and may require  restrictions on water use. 
+
+```{r mad}
+## Calculate %MAD
+long_term_mad <- hy_annual_stats(q_stns) %>%
+  filter(Sum_stat == "MEAN") %>%
+  spread(Sum_stat, Value) %>%
+  group_by(STATION_NUMBER) %>%
+  summarise(`MEAN MAD (m^3/s)` = mean(MEAN, na.rm = TRUE)) %>%
+  left_join(rl_data_instant, by = c("STATION_NUMBER")) %>%
+  mutate(`% MAD` = (Value/`MEAN MAD (m^3/s)`)*100) %>%
+  left_join(allstations[,1:2], by = c("STATION_NUMBER")) %>%
+  select(STATION_NAME, STATION_NUMBER, Value, `MEAN MAD (m^3/s)`, `% MAD`) %>%
+  rename(`Latest Q` = Value) %>%
+  arrange(STATION_NUMBER)
+
+if(params$table_format == "latex"){
+   long_term_mad %>%
+    kable(format = "latex", booktabs = T, digits = 2) %>%
+    kable_styling(font_size = 7,latex_options = c("HOLD_position"))
+}
+
+if(params$table_format == "html"){
+   long_term_mad %>%
+    kable(format = "html", digits = 2) %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+}
+```
+
+
+
+

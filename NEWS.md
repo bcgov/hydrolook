@@ -1,3 +1,12 @@
+# hydrolook 0.2.0
+* general package tidying; removing many package dependencies
+* added travis
+* simplified net_diag report by using only basic tools; works with html and pdf
+* addition of regional streamflow reports
+* better map for report_station
+* station functions check and return an error if report packages aren't installed.
+* removed the following functions: check_stn_gap.R, network_correlation.R
+
 # hydrolook 0.1.8
 * Better identification of path through `here::here()`
 * Fixes bug identified in #8; applied to all functions

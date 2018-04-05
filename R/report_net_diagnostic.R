@@ -22,11 +22,11 @@
 #' @family report_generators
 #' @examples
 #' \dontrun{
-#' net_diag_report(output_type = "pdf", PROV_TERR_STATE_LOC = "PE")
+#' report_net_diagnostic(output_type = "pdf", PROV_TERR_STATE_LOC = "PE")
 #' }
 
 
-net_diag_report <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC") {
+report_net_diagnostic <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC") {
 
   if(!output_type %in% c("pdf","html")){
     stop('output_type must be "pdf" or "html"')
@@ -34,8 +34,27 @@ net_diag_report <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC") {
 
   input_path = system.file("templates", "net_diag.Rmd", package="hydrolook")
 
-  dir_here <- here::here("report/net_diag_lag")
+  check_report_packages(input_path)
 
+  dir_here <- file.path("report/net_diag")
+
+  if(!dir.exists(dir_here)){
+    dir.create(dir_here, recursive = TRUE)
+  }
+
+  ## Keep a record water office status
+  stns <- tidyhydat::realtime_stations(prov_terr_state_loc = "BC")
+  stns_split <- split(stns$STATION_NUMBER, (seq(length(stns$STATION_NUMBER))) %/% 20)
+  wo_status <- purrr::map_dfr(stns_split, ~ check_water_office_status(.x))
+  wo_status$Date <- Sys.time()
+
+  if(file.exists(file.path("report/net_diag", "water_office_record.csv"))){
+    existing_wo_status <- readr::read_csv(file.path("report/net_diag", "water_office_record.csv"))
+    wo_status <- dplyr::bind_rows(existing_wo_status, wo_status)
+  }
+
+
+  ## Render report
   rmarkdown::render(input = input_path,
                     output_format = paste0(output_type,"_document"),
                     intermediates_dir = dir_here,
@@ -45,5 +64,10 @@ net_diag_report <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC") {
                     ),
                     output_file = paste0("net_diag_",PROV_TERR_STATE_LOC,"_",Sys.Date(),".",output_type),
                     output_dir = dir_here)
+
+  ## Only output status if rendering if successful
+  readr::write_csv(wo_status, file.path("report/net_diag", "water_office_record.csv"))
+
+
 
 }

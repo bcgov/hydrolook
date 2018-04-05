@@ -1,35 +1,27 @@
 Package: hydrolook
 Title: Hydrometric Network Diagnostic
-Version: 0.1.8
+Version: 0.2
 Authors@R: c(person("Sam", "Albers", email = "sam.albers@gov.bc.ca", role = c("aut","cre")),
   person("Province of British Columbia", role="cph"))
 Description: Provides functions and reports to diagnose issues with the Water Survey of Canada Hydrometric network.
-Depends: R (>= 3.4.0)
 License: file LICENSE
+Depends: 
+    R (>= 3.4.0)
+Imports: 
+    dplyr,
+    lubridate,
+    methods,
+    purrr,
+    readr,
+    rmarkdown,
+    rvest,
+    tidyhydat,
+    tidyr,
+    xml2   
+Suggests: 
+    knitr,
+    testthat
+VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
-Imports:
-  tibble,
-  methods,
-  readr,
-  xml2,
-  here,
-  tidyhydat,
-  bcmaps,
-  lubridate,
-  tidyr,
-  dplyr,
-  knitr,
-  rmarkdown,
-  rvest,
-  kableExtra,
-  sf,
-  sp,
-  cowplot,
-  bcmaps,
-  corrr,
-  igraph,
-  ggraph,
-  ggplot2
 RoxygenNote: 6.0.1
-VignetteBuilder: knitr

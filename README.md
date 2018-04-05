@@ -1,15 +1,12 @@
 <a rel="Inspiration" href="https://github.com/BCDevExchange/docs/blob/master/discussion/projectstates.md"><img alt="An idea being explored and shaped. Open for discussion, but may never go anywhere." style="border-width:0" src="https://assets.bcdevexchange.org/images/badges/inspiration.svg" title="An idea being explored and shaped. Open for discussion, but may never go anywhere." /></a>
 
+[![Travis build status](https://travis-ci.org/bcgov/hydrolook.svg?branch=master)](https://travis-ci.org/bcgov/hydrolook)
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-Warning
-=======
-
-The project is under active development and breaking changes will be made.
-
 hydrolook
 =========
 
-The hydrolook package has been developed to provide a series semi-automated reports on various facets of the Water Survey of Canada hydrometric network.
+The hydrolook package has been developed to provide a series semi-automated reports on various facets of the Water Survey of Canada hydrometric network. The project is under active development and breaking changes may be made.
 
 Installation
 ------------
@@ -21,7 +18,7 @@ install.packages("remotes")
 remotes::install_github("bcgov/hydrolook")
 ```
 
-Then to load the package you need to use the library command. When you install hydrolook, several other packages will be installed as well. In fact `hydrolook` is fairly package intensive project. Several additional packages are downloaded.
+Then to load the package you need to use the library command. It is advised that you setup a dedicated directory to conduct your analysis as several folders will be created as reports are generated. When you install hydrolook, several other packages will be installed as well. In fact `hydrolook` is fairly package intensive project. Several additional packages are downloaded.
 
 ``` r
 library(hydrolook)
@@ -40,14 +37,18 @@ download_hydat()
 Example
 -------
 
-This is a basic example of `hydrolook` usage. Reports are written in rmarkdown format and are generated using report specific commands. For example, if we wanted to generate the Net\_diag report we could use the following command:
+This is a basic example of `hydrolook` usage. Reports are written in rmarkdown format and are generated using report specific commands. For example, if we wanted to generate the `net_diagnostic` report we could use the following command:
 
 ``` r
-realtime_lag_report(output_type = "pdf", PROV_TERR_STATE_LOC = "AB")
+report_realtime_lag(output_type = "pdf", PROV_TERR_STATE_LOC = "AB")
+report_station(output_type = "pdf", STATION_NUMBER = "08MF005")
+report_net_diagnostic(output_type = "pdf", PROV_TERR_STATE_LOC = "PE")
+```
 
-station_report(output_type = "pdf", STATION_NUMBER = "08MF005")
+Or if an HTML output is desired, this can be modified with the output\_type argument:
 
-net_diag_report(output_type = "pdf", PROV_TERR_STATE_LOC = "PE")
+``` r
+report_net_diagnostic(output_type = "html", PROV_TERR_STATE_LOC = "PE")
 ```
 
 Project Status

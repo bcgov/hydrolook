@@ -50,7 +50,7 @@ check_stn_variability <- function(STATION_NUMBER = NULL, PROV_TERR_STATE_LOC = N
   ## If prov is omitted
   if(is.null(prov)){
   loop_stations = stations
-  allstations_list = tibble::tibble(STATION_NUMBER = stations)
+  allstations_list = dplyr::tibble(STATION_NUMBER = stations)
   }
 
 

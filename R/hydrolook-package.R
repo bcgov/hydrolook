@@ -10,34 +10,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and limitations under the License.
 
-
-
-#' @title Hydrometric Network Diagnostic
-#'
-#' @description This package provides functions and reports to diagnose issues with the Water Survey of Canada Hydrometric network
-#'
-#' \code{hydrolook} package
-#'
-#' @docType package
-#' @name hydrolook
-#'
-#' @importFrom tibble tibble
-#' @importFrom readr read_csv
-#' @importFrom readr cols
-#' @importFrom xml2 read_html
-#' @importFrom lubridate dmy_hm
-#' @importFrom sf filter.sf
-#' @importFrom methods as
-#' @import ggplot2
-#' @import ggraph
-#' @import tidyr
-#' @import dplyr
-#' @import knitr
-#' @import rmarkdown
-#' @import rvest
-# @import tidyhydat
-# @import kableExtra
-#'
+#' @importFrom dplyr %>%
 NULL
 
 # Removes notes from R CMD check for NSE
@@ -47,9 +20,12 @@ NULL
     utils::globalVariables(
       # Vars used in Non-Standard Evaluations, declare here to avoid CRAN warnings
       c("Raw_var", "date_time", "Date", "Time", "filename","Parameter",
+        "STATION_NUMBER","PROV_TERR_STATE_LOC","V1",
         "." # piping requires '.' at times
       )
     )
   invisible()
 }
 
+#' @keywords internal
+"_PACKAGE"

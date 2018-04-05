@@ -22,23 +22,32 @@
 #'
 #' @examples
 #' \donttest{
-#' station_report(output_type = "pdf", STATION_NUMBER = "08EB005")
-#' station_report(output_type = "pdf", STATION_NUMBER = "08MF005")
-#' station_report(output_type = "pdf", STATION_NUMBER = "07EA005")
+#' report_station(output_type = "pdf", STATION_NUMBER = "08EB005")
+#' report_station(output_type = "pdf", STATION_NUMBER = "08MF005")
+#' report_station(output_type = "pdf", STATION_NUMBER = "07EA005")
 #' }
 #'
 #'
-station_report = function(output_type = "pdf", STATION_NUMBER = NULL){
-
-  if(!requireNamespace("bcmaps")) stop("bcmaps needs to be installed for this function to work properly. See https://github.com/bcgov/bcmaps")
+report_station = function(output_type = "pdf", STATION_NUMBER = NULL){
 
   if(!output_type %in% c("pdf","html")){
     stop('output_type must be "pdf" or "html"')
   }
 
-  dir_here <- here::here("report/station_reports")
+  ## Create organize fill structure
+  stn <- tidyhydat::hy_stations(STATION_NUMBER)
 
-  rmarkdown::render(system.file("templates", "station_report.Rmd", package="hydrolook"),
+  dir_here <- file.path("report/station_reports", paste0(stn$STATION_NUMBER," ",stn$STATION_NAME))
+
+  if(!dir.exists(dir_here)) {
+    dir.create(dir_here)
+  }
+
+  input_path <- system.file("templates", "station_report.Rmd", package="hydrolook")
+
+  check_report_packages(input_path)
+
+  rmarkdown::render(input_path,
                     output_format = paste0(output_type,"_document"),
                     params = list(
                       table_format = ifelse(output_type == "pdf","latex","html"),

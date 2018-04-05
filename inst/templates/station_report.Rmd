@@ -11,15 +11,27 @@ params:
     value: latex
   stns:
     value: 08MF005
-  start_date: 
-    value: !r as.Date("2015-01-01")
-  end_date:
-    value: !r as.POSIXct("2015-01-01 12:30:00")
+geometry: margin=1cm
 ---
 
 ---
 title: "`r tidyhydat::hy_stations(station_number = params$stns)$STATION_NAME` - `r params$stns`"
 ---
+
+```{r packages, include=FALSE}
+library(hydrolook)
+library(tidyhydat)
+library(tidyverse)
+library(lubridate)
+library(kableExtra)
+library(knitr)
+library(sf)
+library(bcmaps)
+library(cowplot)
+library(zoo)
+library(ggrepel)
+```
+
 
 ```{r setup, include=FALSE}
 # Copyright 2017 Province of British Columbia
@@ -34,24 +46,24 @@ title: "`r tidyhydat::hy_stations(station_number = params$stns)$STATION_NAME` - 
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and limitations under the License.
 
-library(hydrolook)
-library(tidyhydat)
-library(tidyverse)
-library(lubridate)
-library(kableExtra)
-library(knitr)
-library(sf)
-library(bcmaps)
-library(cowplot)
-library(zoo)
 
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
-                      fig.path = here::here("report/station_reports"))
+## Knitr options dependent on type of document
+if(params$table_format == "latex"){
+  opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
+                      fig.width = 8, fig.height = 8, fig.path = file.path("report/station_report/"))
+}
+
+if(params$table_format == "html"){
+  opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
+                      fig.width = 8, fig.height = 8)
+}
+
+options(knitr.table.format = params$table_format)
 
 ## For testing
 #params <- tibble(stns = "08MF005")
 ## A station not in hydat
-#params <- tibble(stns = "08HF014")
+#params <- tibble(stns = "07FC001")
 
 ## Create station header
 stn_header <- allstations %>%
@@ -59,21 +71,19 @@ stn_header <- allstations %>%
 ```
 
 ## Information
-This is automatically generated report that provides basic information on a hydrometric station. This report was generated on 
+This report, generated on
 ```{r, results='asis'}
 cat(format(Sys.Date(), '%d %B, %Y'))
 ```
-. 
+provides basic information on a hydrometric station.
 
 
 ```{r, data_load_in}
 rl_data <- realtime_dd(station_number = params$stns)
 
 rl_data_day <- rl_data %>%
-  mutate(Date_day = as.Date(Date)) %>%
-  group_by(Date_day, STATION_NUMBER) %>%
-  summarise(Value = mean(Value, na.rm = TRUE)) %>%
-  ungroup()
+  realtime_daily_mean() %>%
+  filter(Parameter == "Flow")
 
 HIST_FLOW <- hy_daily_flows(station_number = params$stns)
 ```
@@ -92,8 +102,7 @@ tbl_flow <- HIST_FLOW %>%
   bind_rows(rl_data_day %>%
               ungroup() %>%
               mutate(Q7_day = rollmean(Value, 7, fill = NA, align = "right")) %>%
-              filter(Date_day %in% (Sys.Date()-1)) %>%
-              rename(Date = Date_day) 
+              filter(Date %in% (Sys.Date()-1))
               ) %>% 
   filter(!is.na(Value)) %>%
   mutate(Rank = min_rank(Value)) %>%
@@ -101,9 +110,15 @@ tbl_flow <- HIST_FLOW %>%
   filter(year(Date) == year(Sys.Date())) %>%
   select(Date, Value, Rank, Q7_day, Rank7day, Symbol)
 
-colnames(tbl_flow) <- c("Date","Daily Discharge","Daily Rank", "7 Day Discharge", "7 Day Rank","Symbol")
+col_vector <- c("Date","Daily Discharge","Daily Rank", "7 Day Discharge", "7 Day Rank","Symbol")
 
+colnames(tbl_flow) <- col_vector
+  
 
+if(nrow(tbl_flow) == 0){
+  tbl_flow <- as.data.frame(t(matrix(rep(NA, length(col_vector)), byrow = FALSE)))
+  colnames(tbl_flow) <- col_vector
+}
 
 kable(cbind(tbl_flow,range), format = "latex", booktabs = T) %>%
   kable_styling(font_size = 6, latex_options = c("HOLD_position")) %>%
@@ -111,67 +126,91 @@ kable(cbind(tbl_flow,range), format = "latex", booktabs = T) %>%
 
 ```
 
-
+## Plot Summaries
 
 ```{r}
-## sf-y the files from bcmaps
-wsc_drainages_sf <- wsc_drainages() 
-watercourses_5M_sf <- watercourses_5M()
-nr_regions_sf <- nr_regions()
-bc_bound_hres_sf <- bc_bound_hres()
-
 
 stns_sf <- hy_stations(station_number = params$stns) %>%
   st_as_sf(., coords = c("LONGITUDE", "LATITUDE"), 
            crs = 4326, 
            agr = "constant") %>%
-  transform_bc_albers() 
+  transform_bc_albers() %>%
+  mutate(
+    CENTROID = map(geometry, st_centroid),
+    COORDS = map(CENTROID, st_coordinates),
+    COORDS_X = map_dbl(COORDS, 1),
+    COORDS_Y = map_dbl(COORDS, 2)
+  ) %>%
+  as_tibble() %>%
+  st_as_sf()
+
+
+
 
 ## Drainages for the stations
-plt_wsc <- wsc_drainages_sf %>%
+plt_wsc <- wsc_drainages() %>%
   st_join(stns_sf) %>%
   filter(!is.na(STATION_NUMBER))
 
 ##Rivers
-plt_5m <- watercourses_5M_sf %>%
+plt_5m <- watercourses_5M() %>%
   st_join(plt_wsc) %>%
   filter(!is.na(STATION_NUMBER))
 
 ## Larger watershed
-plt_nr <- nr_regions_sf %>%
+plt_nr <- nr_regions() %>%
   st_join(plt_wsc) %>%
   filter(!is.na(MAJOR_DRAINAGE_AREA_NAME)) %>%
-  mutate(REG_NAME = gsub("Natural Resource Region","", REGION_NAME))
+  mutate(REG_NAME = gsub("Natural Resource Region","", REGION_NAME)) %>%
+  st_intersection(bc_bound()) 
 
-## bc outline
+## Find the biggest city then bind it to the station sf object
+biggest_city_stn <- bc_cities() %>%
+  st_join(plt_nr %>%
+            group_by(OCEAN_DRAINAGE_AREA_NAME) %>%
+            summarise(), left = FALSE) %>%
+  filter(POP_2000 == max(POP_2000)) %>%
+  rename(geometry = SHAPE) %>%
+  mutate(
+    CENTROID = map(geometry, st_centroid),
+    COORDS = map(CENTROID, st_coordinates),
+    COORDS_X = map_dbl(COORDS, 1),
+    COORDS_Y = map_dbl(COORDS, 2)
+  ) %>%
+  as_tibble() %>%
+  st_sf() %>%
+  select(NAME, COORDS_X, COORDS_Y, geometry) %>%
+  rbind(stns_sf %>%
+          select(NAME = STATION_NAME, COORDS_X, COORDS_Y, geometry)
+        )
+
+
 
 stn_map <- ggplot() +
   geom_sf(data = plt_wsc, aes(fill = MAJOR_DRAINAGE_AREA_NAME), alpha = 0.8) +
   geom_sf(data = plt_nr, aes(fill = REGION_NAME), alpha = 0.2) +
   geom_sf(data = plt_5m, aes(colour = name_en), size = 2) +
-  #geom_sf(data = bc_sf) +
-  geom_sf(data = stns_sf) +
+  geom_sf(data = biggest_city_stn, size = 2, aes(shape = NAME)) +
+  geom_text_repel(biggest_city_stn, mapping = aes(COORDS_X, COORDS_Y, label = NAME), 
+                           size = 3, min.segment.length = 0) +
   scale_colour_viridis_d(name = "River Feature") +
-  scale_fill_discrete(name = "Watershed/ NR District") +
+  guides(fill = FALSE, shape = FALSE) +
+  labs(x = "", y = "") +
   theme_minimal() +
-  labs(title = "Station Map") 
-
-
+  theme(legend.position = "bottom")
 ```
 
 ```{r}
 rl_plt <- rl_data_day %>%
-  ggplot(aes(x = Date_day, y = Value)) +
+  ggplot(aes(x = Date, y = Value)) +
   geom_path() +
   geom_point() +
   theme_minimal() +
-  labs(title = "Last Thirty Days")
+  labs(title = "Last Thirty Days", y = "Discharge (m^3/s)") 
 
 ```
 
 ```{r}
-
-
 
 ## A dataframe 
 pct_flow <- HIST_FLOW %>%
@@ -186,9 +225,9 @@ pct_flow <- HIST_FLOW %>%
 
 hist_plt <- ggplot(pct_flow, aes(x = Date_no_year, y = Value)) +
   geom_point(aes(colour = prctile)) +
-  geom_line(data = rl_data_day, aes(x = Date_day), colour = "red") +
-  geom_point(data = rl_data_day, aes(x = Date_day, y = Value, 
-                                     shape = factor(year(Date_day))), colour = "red") +
+  geom_line(data = rl_data_day, aes(x = Date), colour = "red") +
+  geom_point(data = rl_data_day, aes(x = Date, y = Value, 
+                                     shape = factor(year(Date))), colour = "red") +
   scale_colour_viridis_c(name = "Percentile \n", option = "viridis") +
   scale_shape_discrete(name = "Year") +
   theme_minimal() +
@@ -198,22 +237,6 @@ hist_plt <- ggplot(pct_flow, aes(x = Date_no_year, y = Value)) +
 
 ```
 
-
-
-```{r}
-#HIST_FLOW <- DLY_FLOWS(STATION_NUMBER = params$stns)
-
-hist_dist_plt <- HIST_FLOW %>%
-  filter(month(Date) %in% month(seq.Date(from = (Sys.Date()-30), to = Sys.Date(), by = "day"))) %>%
-  filter(day(Date) %in% day(seq.Date(from = (Sys.Date()-30), to = Sys.Date(), by = "day"))) %>%
-  ggplot() +
-  geom_histogram(aes(x = Value)) +
-  geom_rug() +
-  theme_minimal() +
-  labs(title = "Historical Distributions from last thirty days")
-```
-
-## Plot Summaries
 
 ```{r plot, fig.width = 10, fig.height=8}
 #plot_grid(stn_map, rl_plt, hist_plt, hist_dist_plt)

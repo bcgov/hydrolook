@@ -2,5 +2,6 @@
 .Rhistory
 .RData
 *.pdf
+*.html
 
 report/

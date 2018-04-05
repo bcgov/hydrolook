@@ -4,5 +4,7 @@
 
 ^CONTRIBUTING\.md$
 ^CODE_OF_CONDUCT\.md$
-
 report/
+^\.travis\.yml$
+
+check_stn_variability.R
