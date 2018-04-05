@@ -2,7 +2,7 @@
 % Please edit documentation in R/report_regional_streamflow.R
 \name{report_regional_streamflow}
 \alias{report_regional_streamflow}
-\title{Generate diagnostic report}
+\title{Generate regional report on common flow metrics}
 \usage{
 report_regional_streamflow(output_type = "pdf", nr_region)
 }

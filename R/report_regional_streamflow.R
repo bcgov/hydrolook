@@ -13,7 +13,7 @@
 
 #' @export
 #'
-#' @title Generate diagnostic report
+#' @title Generate regional report on common flow metrics
 #'
 #' @param nr_region the natural resource region of British Columbia to focus report. See example for possible names.
 #' @param output_type the type of file to be outputted. Currently html and pdf are supported. defaults to pdf
