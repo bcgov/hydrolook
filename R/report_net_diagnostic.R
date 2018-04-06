@@ -48,11 +48,19 @@ report_net_diagnostic <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC
   wo_status <- purrr::map_dfr(stns_split, ~ check_water_office_status(.x))
   wo_status$Date <- Sys.time()
 
+
   if(file.exists(file.path("report/net_diag", "water_office_record.csv"))){
     existing_wo_status <- readr::read_csv(file.path("report/net_diag", "water_office_record.csv"))
     wo_status <- dplyr::bind_rows(existing_wo_status, wo_status)
   }
 
+
+  if(!file.exists(file.path("report/net_diag", "water_office_record.csv"))){
+    ans <- ask(paste0("hydrolook would like to create '", suppressWarnings(normalizePath("report/net_diag/water_office_record.csv")),
+                      "' Is that okay?"))
+    if (!ans) warning("A record of station status will not be created", call. = FALSE)
+
+  }
 
   ## Render report
   rmarkdown::render(input = input_path,
@@ -65,8 +73,10 @@ report_net_diagnostic <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC
                     output_file = paste0("net_diag_",PROV_TERR_STATE_LOC,"_",Sys.Date(),".",output_type),
                     output_dir = dir_here)
 
-  ## Only output status if rendering if successful
-  readr::write_csv(wo_status, file.path("report/net_diag", "water_office_record.csv"))
+
+  ## Only output status if rendering is successful
+  ## Carry forward the answer until after the rendering
+  if(ans) readr::write_csv(wo_status, file.path("report/net_diag", "water_office_record.csv"))
 
 
 

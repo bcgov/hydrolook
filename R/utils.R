@@ -55,6 +55,15 @@ check_report_packages <- function(input_path){
 }
 
 
+ask <- function (...)
+{
+  choices <- c("Yes", "No")
+  cat(paste0(..., "\n", collapse = ""))
+  paste0("---------")
+  utils::menu(choices) == which(choices == "Yes")
+}
+
+
 
 
 
