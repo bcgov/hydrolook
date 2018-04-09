@@ -37,6 +37,7 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(purrr)
+library(forcats)
 library(readr)
 library(tidyhydat)
 library(hydrolook)
@@ -116,35 +117,62 @@ Here is a running total of stations that have had data issues.
 if(file.exists(here("report/net_diag", "water_office_record.csv"))) {
   hist_wo_status <- read_csv(here("report/net_diag", "water_office_record.csv"))
   
-  hist_wo_status %>%
-    filter(DATA_LAST_SIX_HOURS == "No",  OPERATION_SCHEDULE == "Continuous") %>%
+  today_stns_no_report <- hist_wo_status %>%
+    filter(as.Date(Date) == Sys.Date()) %>%
+    filter(DATA_LAST_SIX_HOURS == "No") %>%
+    pull(STATION_NUMBER)
+  
+  hist_wo_status_plot_df <- hist_wo_status %>%
+    filter(STATION_NUMBER %in% today_stns_no_report,  OPERATION_SCHEDULE == "Continuous") %>%
     filter(as.Date(Date) > (Sys.Date()-14)) %>%
-    ggplot(aes(x = Date, y = STATION_NAME)) +
-    geom_point() +
-    geom_line() +
-    scale_fill_viridis_d() +
+    mutate(STATION_NUMBER = factor(STATION_NUMBER), levels = sort(STATION_NUMBER)) %>%
+    mutate(STATION = paste0(STATION_NAME," (", STATION_NUMBER,")"))
+  
+  ## Station factor ordered by STATION_NUMBER factor level
+  ordered_STATION <- unique(hist_wo_status_plot_df[order(hist_wo_status_plot_df$STATION_NUMBER),]$STATION)
+  
+  hist_wo_status_plot_df %>%
+    mutate(STATION = factor(STATION, levels = ordered_STATION)) %>%
+    ggplot(aes(x = Date, y = STATION, colour = DATA_LAST_SIX_HOURS)) +
+    geom_line(colour = "black", linetype = 2) +
+    geom_point(size = 3) +
+    scale_colour_viridis_d(name = "Data record in the last six hours on the 'Date of Evaluation'") +
     labs(title = "Water Office Historical Data Reporting - Continuous Stations", subtitle = "Raw data available from: https://wateroffice.ec.gc.ca/mainmenu/real_time_data_index_e.html",
-         y = "Station Name") +
-  theme_minimal()
+         y = "Station", x = "Date of Evaluation") +
+    theme_minimal() +
+    theme(legend.position = "bottom")
 }
 ```
 
 ### Operation Status: Seasonal
 ```{r, message = FALSE, fig.height = 5, fig.width = 10}
 if(file.exists(here("report/net_diag", "water_office_record.csv"))) {
-  hist_wo_status <-
-  read_csv(here("report/net_diag", "water_office_record.csv"))
+  hist_wo_status <- read_csv(here("report/net_diag", "water_office_record.csv"))
   
-  hist_wo_status %>%
-    filter(DATA_LAST_SIX_HOURS == "No",  OPERATION_SCHEDULE == "Seasonal") %>%
+   today_stns_no_report <- hist_wo_status %>%
+    filter(as.Date(Date) == Sys.Date()) %>%
+    filter(DATA_LAST_SIX_HOURS == "No") %>%
+    pull(STATION_NUMBER)
+  
+  hist_wo_status_plot_df <- hist_wo_status %>%
+    filter(STATION_NUMBER %in% today_stns_no_report,  OPERATION_SCHEDULE == "Seasonal") %>%
     filter(as.Date(Date) > (Sys.Date()-14)) %>%
-    ggplot(aes(x = Date, y = STATION_NAME)) +
-    geom_point() +
-    geom_line() +
-    scale_fill_viridis_d() +
+    mutate(STATION_NUMBER = factor(STATION_NUMBER), levels = sort(STATION_NUMBER)) %>%
+    mutate(STATION = paste0(STATION_NAME," (", STATION_NUMBER,")"))
+  
+  ## Station factor ordered by STATION_NUMBER factor level
+  ordered_STATION <- unique(hist_wo_status_plot_df[order(hist_wo_status_plot_df$STATION_NUMBER),]$STATION)
+  
+  hist_wo_status_plot_df %>%
+    mutate(STATION = factor(STATION, levels = ordered_STATION)) %>%
+    ggplot(aes(x = Date, y = STATION, colour = DATA_LAST_SIX_HOURS)) +
+    geom_line(colour = "black", linetype = 2) +
+    geom_point(size = 3) +
+    scale_colour_viridis_d(name = "Data record in the last six hours on the 'Date of Evaluation'") +
     labs(title = "Water Office Historical Data Reporting - Seasonal Stations", subtitle = "Raw data available from: https://wateroffice.ec.gc.ca/mainmenu/real_time_data_index_e.html",
-         y = "Station Name") +
-  theme_minimal()
+         y = "Station", x = "Date of Evaluation") +
+    theme_minimal() +
+    theme(legend.position = "bottom")
 }
 ```
 
