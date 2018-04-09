@@ -50,17 +50,31 @@ report_net_diagnostic <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC
 
 
   if(file.exists(file.path("report/net_diag", "water_office_record.csv"))){
-    existing_wo_status <- readr::read_csv(file.path("report/net_diag", "water_office_record.csv"))
+    path_to_write <- file.path("report/net_diag", "water_office_record.csv")
+    existing_wo_status <- readr::read_csv(path_to_write)
     wo_status <- dplyr::bind_rows(existing_wo_status, wo_status)
+    readr::write_csv(wo_status, path_to_write)
+    message(paste0("Appending data collected at ", Sys.time(), " to ", path_to_write))
   }
 
 
   if(!file.exists(file.path("report/net_diag", "water_office_record.csv"))){
     ans <- ask(paste0("hydrolook would like to create '", suppressWarnings(normalizePath("report/net_diag/water_office_record.csv")),
                       "' Is that okay?"))
-    if (!ans) warning("A record of station status will not be created", call. = FALSE)
+    if(ans == TRUE){
+      path_to_write <- file.path("report/net_diag", "water_office_record.csv")
+      readr::write_csv(wo_status, path_to_write)
+      message(paste0("Creating ", path_to_write))
+    }
+
+    if (!ans) {
+      warning("A record of station status will not be created", call. = FALSE)
+    }
 
   }
+
+
+
 
   ## Render report
   rmarkdown::render(input = input_path,
@@ -74,13 +88,6 @@ report_net_diagnostic <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC
                     output_dir = dir_here)
 
 
-  ## Only output status if rendering is successful
-  ## Carry forward the answer until after the rendering
-  if(exists("ans")){
-    if(ans == TRUE){
-      readr::write_csv(wo_status, file.path("report/net_diag", "water_office_record.csv"))
-    }
-  }
 
 
 
