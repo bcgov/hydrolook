@@ -76,7 +76,11 @@ report_net_diagnostic <- function(output_type = "pdf", PROV_TERR_STATE_LOC = "BC
 
   ## Only output status if rendering is successful
   ## Carry forward the answer until after the rendering
-  if(ans) readr::write_csv(wo_status, file.path("report/net_diag", "water_office_record.csv"))
+  if(exists("ans")){
+    if(ans == TRUE){
+      readr::write_csv(wo_status, file.path("report/net_diag", "water_office_record.csv"))
+    }
+  }
 
 
 
