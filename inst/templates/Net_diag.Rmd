@@ -76,7 +76,7 @@ if(params$table_format == "html"){
 
 options(knitr.table.format = params$table_format) 
 
-#params <- data.frame(table_format = "latex", prov = "NU")
+#params <- data.frame(table_format = "latex", prov = "BC")
 ```
 
 
@@ -186,14 +186,14 @@ check_datamart_status(params$prov)
 ## Continuous stations
 ```{r, message = FALSE, fig.height = 5, fig.width = 10}
 continuous <- six_hour_status %>%
-  filter(DATA_LAST_SIX_HOURS == "No", OPERATION_SCHEDULE == "Continuous")
+  filter(DATA_LAST_SIX_HOURS == "No", OPERATION_SCHEDULE == "Continuous") %>%
+  pull(STATION_NUMBER) %>%
+  realtime_dd() %>%
+  filter(!is.na(STATION_NUMBER), !is.na(Value))
 
 if(nrow(continuous) > 0){
   continuous %>%
-    pull(STATION_NUMBER) %>%
-    realtime_dd() %>%
     left_join(stns,by = c("STATION_NUMBER", "PROV_TERR_STATE_LOC")) %>%
-    filter(!is.na(STATION_NUMBER), !is.na(Value)) %>%
     mutate(STATION = paste0(STATION_NAME, " - ", STATION_NUMBER)) %>%
     ggplot(aes(x = Date, y = STATION, colour = Value)) +
     geom_point() +
@@ -206,14 +206,15 @@ if(nrow(continuous) > 0){
 ## Seasonal stations
 ```{r, message = FALSE, fig.height = 5, fig.width = 10}
 seasonal <- six_hour_status %>%
-  filter(DATA_LAST_SIX_HOURS == "No", OPERATION_SCHEDULE == "Seasonal") 
+  filter(DATA_LAST_SIX_HOURS == "No", OPERATION_SCHEDULE == "Seasonal") %>%
+  pull(STATION_NUMBER) %>%
+  realtime_dd() %>%
+  filter(!is.na(STATION_NUMBER), !is.na(Value))
+  
 
 if(nrow(seasonal) > 0){
   seasonal %>%
-    pull(STATION_NUMBER) %>%
-    realtime_dd() %>%
     left_join(stns,by = c("STATION_NUMBER", "PROV_TERR_STATE_LOC")) %>%
-    filter(!is.na(STATION_NUMBER), !is.na(Value)) %>%
     mutate(STATION = paste0(STATION_NAME, " - ", STATION_NUMBER)) %>%
     ggplot(aes(x = Date, y = STATION, colour = Value)) +
     geom_point() +
