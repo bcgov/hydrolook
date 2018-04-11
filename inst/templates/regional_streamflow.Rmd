@@ -147,7 +147,7 @@ city <- bc_cities() %>%
 
 ```
 
-```{r analysis_instant, cache=TRUE}
+```{r analysis_instant}
 ## All stations from the specified region, that are flow and 
 ## have a record longer than 20 years
 q_stns <- unique(stns_region$STATION_NUMBER) %>%
