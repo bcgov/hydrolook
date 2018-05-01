@@ -156,7 +156,7 @@ if(file.exists(here("report/net_diag", "water_office_record.csv"))) {
   
   hist_wo_status_plot_df <- hist_wo_status %>%
     filter(STATION_NUMBER %in% today_stns_no_report,  OPERATION_SCHEDULE == "Seasonal") %>%
-    filter(as.Date(Date) > (Sys.Date()-14)) %>%
+    filter(as.Date(Date) >= (Sys.Date()-21)) %>%
     mutate(STATION_NUMBER = factor(STATION_NUMBER), levels = sort(STATION_NUMBER)) %>%
     mutate(STATION = paste0(STATION_NAME," (", STATION_NUMBER,")"))
   
