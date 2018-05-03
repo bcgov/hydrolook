@@ -136,7 +136,7 @@ if(file.exists(here("report/net_diag", "water_office_record.csv"))) {
     ggplot(aes(x = Date, y = STATION, colour = DATA_LAST_SIX_HOURS)) +
     geom_line(colour = "black", linetype = 2) +
     geom_point(size = 3) +
-    scale_colour_viridis_d(name = "Data record in the last six hours on the 'Date of Evaluation'") +
+    scale_colour_discrete(name = "Data record in the last six hours on the 'Date of Evaluation'") +
     labs(title = "Water Office Historical Data Reporting - Continuous Stations", subtitle = "Raw data available from: https://wateroffice.ec.gc.ca/mainmenu/real_time_data_index_e.html",
          y = "Station", x = "Date of Evaluation") +
     theme_minimal() +
@@ -168,7 +168,7 @@ if(file.exists(here("report/net_diag", "water_office_record.csv"))) {
     ggplot(aes(x = Date, y = STATION, colour = DATA_LAST_SIX_HOURS)) +
     geom_line(colour = "black", linetype = 2) +
     geom_point(size = 3) +
-    scale_colour_viridis_d(name = "Data record in the last six hours on the 'Date of Evaluation'") +
+    scale_colour_discrete(name = "Data record in the last six hours on the 'Date of Evaluation'") +
     labs(title = "Water Office Historical Data Reporting - Seasonal Stations", subtitle = "Raw data available from: https://wateroffice.ec.gc.ca/mainmenu/real_time_data_index_e.html",
          y = "Station", x = "Date of Evaluation") +
     theme_minimal() +
@@ -198,7 +198,6 @@ if(nrow(continuous) > 0){
     ggplot(aes(x = Date, y = STATION, colour = Value)) +
     geom_point() +
     facet_wrap(~Parameter, ncol = 2) +
-    scale_colour_viridis_c() +
     theme_minimal()
 }
 ```
@@ -218,7 +217,6 @@ if(nrow(seasonal) > 0){
     ggplot(aes(x = Date, y = STATION, colour = Value)) +
     geom_point() +
     facet_wrap(~Parameter, ncol = 2) +
-    scale_colour_viridis_c() +
     theme_minimal()
 }
 ```
