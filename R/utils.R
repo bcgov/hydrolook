@@ -24,15 +24,15 @@ check_package_installation <- function(libs_needed) {
 
   ## Output a message
   if(any(pkgs %in% "ggplot2") == TRUE && any(getNamespaceExports("ggplot2") %in% "GeomSf")){
-    message("Please install the development version of ggplot2 using the devtools package:")
-    message('install.packages(devtools); devtools::install_github("tidyverse/ggplot2")')
+    stop("Please install the development version of ggplot2 using the devtools package:")
+    stop('install.packages(devtools); devtools::install_github("tidyverse/ggplot2")')
 
     pkgs <- pkgs[which(!pkgs %in% "ggplot2")]
   }
 
   if(length(pkgs) > 0) {
-    message("The ",paste0(pkgs, collapse = ", ")," package(s) need to be installed to run this report.")
-    message("Paste the following into the console to install the missing packages: install.packages(c(",
+    stop("The ",paste0(pkgs, collapse = ", ")," package(s) need to be installed to run this report.")
+    stop("Paste the following into the console to install the missing packages: install.packages(c(",
             paste0(sprintf("'%s'", pkgs), collapse = ","),"))")
   }
 
