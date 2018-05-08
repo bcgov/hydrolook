@@ -1,3 +1,6 @@
+# hydrolook 0.2.2
+"better package installation messages
+
 # hydrolook 0.2.1
 * `report_network_diagnostic` now asks for permission to download station history record.
 

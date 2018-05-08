@@ -1,6 +1,6 @@
 Package: hydrolook
 Title: Hydrometric Network Diagnostic
-Version: 0.2
+Version: 0.2.2.9000
 Authors@R: c(person("Sam", "Albers", email = "sam.albers@gov.bc.ca", role = c("aut","cre")),
   person("Province of British Columbia", role="cph"))
 Description: Provides functions and reports to diagnose issues with the Water Survey of Canada Hydrometric network.
