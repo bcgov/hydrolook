@@ -23,7 +23,8 @@ check_package_installation <- function(libs_needed) {
   pkgs <- names(pkgs)
 
   ## Output a message
-  if(any(pkgs %in% "ggplot2") == TRUE && any(getNamespaceExports("ggplot2") %in% "GeomSf")){
+  #browser()
+  if(any(pkgs %in% "ggplot2") | !any(getNamespaceExports("ggplot2") %in% "GeomSf")){
     message("Please install the development version of ggplot2 using the devtools package.")
     stop('Paste the following into the console to install the missing packages:\n install.packages(devtools); devtools::install_github("tidyverse/ggplot2")', call. = FALSE)
 
