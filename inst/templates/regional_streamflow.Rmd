@@ -252,7 +252,7 @@ tm_shape(region_watershed) +
 tm_shape(region_rivers) +
   tm_lines(col = "blue") +
 tm_shape(pct_flow_last24) +
-  tm_dots(col = "pct_bin", size = 0.4, title = "Streamflow Conditions",
+  tm_dots(col = "pct_bin", size = 0.4, title = "Streamflow conditions \n based percentile quantities",
           palette = naww_pal) +
 tm_shape(city) +
   tm_dots(col = "black", size = 0.4, shape = 17) +
@@ -261,9 +261,8 @@ tm_shape(city) +
 ```
 
 ### Percentile comparison
-The following are comparisons of three percentile aggregations:
+The following are comparisons of two percentile summaries:
 
-- %tile-instant is percentile of the most recent instantaneous discharge measurement from `r Sys.Date()` to the historical daily values
 - %tile-last24 is percentile of the average of the last 24 hours of discharge measurements to the historical daily values
 - %tile-7day_mean is percentile of the rolling 7 day average of daily mean discharge measurements to the 7 day rolling mean of the historical daily values. All 7 day means are calculated based on the **past 7 days**.
 
@@ -280,6 +279,7 @@ pct_flow_instant_tbl_data <- pct_flow_instant %>%
   st_set_geometry(NULL) %>%
   select(STATION_NAME, STATION_NUMBER, Value, prctile) %>%
   rename(`%tile-instant` = prctile, `Latest Q` = Value) %>%
+  select(-`%tile-instant`) %>% ##remove instant %tile
   left_join(pct_flow_last24 %>%
               st_set_geometry(NULL) %>%
               select(STATION_NUMBER, prctile) %>%
