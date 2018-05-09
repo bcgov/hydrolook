@@ -248,7 +248,7 @@ named_naww_pal <- setNames(naww_pal, expected)
 
 
 tm_shape(region_watershed) +
-  tm_polygons(col = "grey90") +
+  tm_polygons() +
 tm_shape(region_rivers) +
   tm_lines(col = "blue") +
 tm_shape(pct_flow_last24) +
@@ -257,7 +257,7 @@ tm_shape(pct_flow_last24) +
 tm_shape(city) +
   tm_dots(col = "black", size = 0.4, shape = 17) +
   tm_text("NAME", auto.placement = TRUE) +
-  tm_style_natural(main.title = paste0(params$region))
+  tm_style_classic(main.title = paste0(params$region))
 ```
 
 ### Percentile comparison
