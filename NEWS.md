@@ -1,5 +1,6 @@
 # hydrolook 0.2.2
-"better package installation messages
+*better package installation messages
+*using tmap install of ggplot2 for mapping
 
 # hydrolook 0.2.1
 * `report_network_diagnostic` now asks for permission to download station history record.

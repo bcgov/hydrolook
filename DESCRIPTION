@@ -8,6 +8,7 @@ License: file LICENSE
 Depends: 
     R (>= 3.4.0)
 Imports: 
+    bcmaps,
     dplyr,
     lubridate,
     methods,
@@ -17,7 +18,7 @@ Imports:
     rvest,
     tidyhydat,
     tidyr,
-    xml2   
+    xml2
 Suggests: 
     knitr,
     testthat
