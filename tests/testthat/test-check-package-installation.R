@@ -1,7 +1,7 @@
 context("Test function that checks if packages are installed")
 
 test_that("check_package_installation returns a message when given missing packages",{
-  expect_message(hydrolook:::check_package_installation(c("dplyr2", "ggplot3")))
+  expect_error(hydrolook:::check_package_installation(c("dplyr2", "ggplot3")))
 })
 
 
