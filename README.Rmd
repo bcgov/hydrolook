@@ -19,16 +19,22 @@ knitr::opts_chunk$set(
 ```
 
 # hydrolook
-The hydrolook package has been developed to provide a series semi-automated reports on various facets of the Water Survey of Canada hydrometric network. The project is under active development and breaking changes may be made.
+The hydrolook package has been developed to provide a series semi-automated reports in R on various facets of the Water Survey of Canada hydrometric network. The project is under active development and breaking changes may be made.
 
 
 ## Installation
-To install the `hydrolook` package, you need to install the remotes package then both the `hydrolook`, `bcmaps` and `tidyhydat` packages
+You first need to install R and it is strongly recommend that you install RStudio. 
+
+- Install R from here: https://cloud.r-project.org/
+
+- Install RStudio from here: https://www.rstudio.com/products/rstudio/download/#download
+
+To install the `hydrolook` package, you need to install the remotes package then the `hydrolook` package:
 ```{r, echo=TRUE, eval=FALSE}
 install.packages("remotes")
 remotes::install_github("bcgov/hydrolook")
 ```
-Then to load the package you need to use the library command. It is advised that you setup a dedicated directory to conduct your analysis as several folders will be created as reports are generated. When you install hydrolook, several other packages will be installed as well. In fact `hydrolook` is fairly package intensive project. Several additional packages are downloaded.
+Then to load the package you need to use the library command. It is advised that you setup a dedicated directory to conduct your analysis as several folders will be created as reports are generated. When you install hydrolook, several other packages will be installed as well. Each report will request other individual packages be installed. Please follow the error messages outputted by R. 
 ```{r, eval = TRUE, echo=TRUE}
 library(hydrolook)
 ```
