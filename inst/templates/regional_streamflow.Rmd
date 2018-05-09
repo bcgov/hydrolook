@@ -251,9 +251,9 @@ tm_shape(region_watershed) +
   tm_polygons(col = "grey90") +
 tm_shape(region_rivers) +
   tm_lines(col = "blue") +
-# tm_shape(pct_flow_instant) +
-#   tm_dots(col = "pct_bin", size = 0.4, title = "Streamflow Conditions",
-#           palette = naww_pal) +
+tm_shape(pct_flow_last24) +
+  tm_dots(col = "pct_bin", size = 0.4, title = "Streamflow Conditions",
+          palette = naww_pal) +
 tm_shape(city) +
   tm_dots(col = "black", size = 0.4, shape = 17) +
   tm_text("NAME", auto.placement = TRUE) +
