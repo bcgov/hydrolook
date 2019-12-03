@@ -1,9 +1,9 @@
-<a rel="Inspiration" href="https://github.com/BCDevExchange/docs/blob/master/discussion/projectstates.md"><img alt="An idea being explored and shaped. Open for discussion, but may never go anywhere." style="border-width:0" src="https://assets.bcdevexchange.org/images/badges/inspiration.svg" title="An idea being explored and shaped. Open for discussion, but may never go anywhere." /></a>
-
+<a id="devex-badge" rel="Retired" href="https://github.com/BCDevExchange/assets/blob/master/README.md"><img alt="No longer being used or supported, recommend not using an alternative option." style="border-width:0" src="https://assets.bcdevexchange.org/images/badges/retired.svg" title="No longer being used or supported, recommend not using an alternative option." /></a>
 [![Travis build
 status](https://travis-ci.org/bcgov/hydrolook.svg?branch=master)](https://travis-ci.org/bcgov/hydrolook)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
 hydrolook
 =========
 
@@ -18,10 +18,11 @@ Installation
 You first need to install R and it is strongly recommend that you
 install RStudio.
 
--   Install R from here: <https://cloud.r-project.org/>
+-   Install R from here:
+    <a href="https://cloud.r-project.org/" class="uri">https://cloud.r-project.org/</a>
 
 -   Install RStudio from here:
-    <https://www.rstudio.com/products/rstudio/download/#download>
+    <a href="https://www.rstudio.com/products/rstudio/download/#download" class="uri">https://www.rstudio.com/products/rstudio/download/#download</a>
 
 To install the `hydrolook` package, you need to install the remotes
 package then the `hydrolook` package:
@@ -79,7 +80,7 @@ report_net_diagnostic(output_type = "html", PROV_TERR_STATE_LOC = "PE")
 Project Status
 --------------
 
-This package is under continual development.
+This package is no longer maintained.
 
 Getting Help or Reporting an Issue
 ----------------------------------
