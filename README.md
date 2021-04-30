@@ -1,28 +1,25 @@
-<a id="devex-badge" rel="Retired" href="https://github.com/BCDevExchange/assets/blob/master/README.md"><img alt="No longer being used or supported, recommend not using an alternative option." style="border-width:0" src="https://assets.bcdevexchange.org/images/badges/retired.svg" title="No longer being used or supported, recommend not using an alternative option." /></a>
+[![img](https://img.shields.io/badge/Lifecycle-Retired-d45500)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
 [![Travis build
 status](https://travis-ci.org/bcgov/hydrolook.svg?branch=master)](https://travis-ci.org/bcgov/hydrolook)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-hydrolook
-=========
+# hydrolook
 
 The hydrolook package has been developed to provide a series
 semi-automated reports in R on various facets of the Water Survey of
 Canada hydrometric network. The project is under active development and
 breaking changes may be made.
 
-Installation
-------------
+## Installation
 
 You first need to install R and it is strongly recommend that you
 install RStudio.
 
--   Install R from here:
-    <a href="https://cloud.r-project.org/" class="uri">https://cloud.r-project.org/</a>
+-   Install R from here: <https://cloud.r-project.org/>
 
 -   Install RStudio from here:
-    <a href="https://www.rstudio.com/products/rstudio/download/#download" class="uri">https://www.rstudio.com/products/rstudio/download/#download</a>
+    <https://www.rstudio.com/products/rstudio/download/#download>
 
 To install the `hydrolook` package, you need to install the remotes
 package then the `hydrolook` package:
@@ -43,8 +40,7 @@ follow the error messages outputted by R.
 library(hydrolook)
 ```
 
-HYDAT download
---------------
+## HYDAT download
 
 To use most of the `hydrolook` package you will need the most recent
 version of the HYDAT database. The sqlite3 version can be downloaded
@@ -56,8 +52,7 @@ library(tidyhydat)
 download_hydat()
 ```
 
-Example
--------
+## Example
 
 This is a basic example of `hydrolook` usage. Reports are written in
 rmarkdown format and are generated using report specific commands. For
@@ -71,25 +66,22 @@ report_net_diagnostic(output_type = "pdf", PROV_TERR_STATE_LOC = "PE")
 ```
 
 Or if an HTML output is desired, this can be modified with the
-output\_type argument:
+output_type argument:
 
 ``` r
 report_net_diagnostic(output_type = "html", PROV_TERR_STATE_LOC = "PE")
 ```
 
-Project Status
---------------
+## Project Status
 
 This package is no longer maintained.
 
-Getting Help or Reporting an Issue
-----------------------------------
+## Getting Help or Reporting an Issue
 
 To report bugs/issues/feature requests, please file an
 [issue](https://github.com/bcgov/hydrolook/issues/).
 
-How to Contribute
------------------
+## How to Contribute
 
 If you would like to contribute to the package, please see our
 [CONTRIBUTING](CONTRIBUTING.md) guidelines.
@@ -98,8 +90,7 @@ Please note that this project is released with a [Contributor Code of
 Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree
 to abide by its terms.
 
-License
--------
+## License
 
     Copyright 2017 Province of British Columbia
 

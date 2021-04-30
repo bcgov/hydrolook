@@ -4,7 +4,9 @@ output:
     variant: markdown_github
 ---
 
-<a id="devex-badge" rel="Retired" href="https://github.com/BCDevExchange/assets/blob/master/README.md"><img alt="No longer being used or supported, recommend not using an alternative option." style="border-width:0" src="https://assets.bcdevexchange.org/images/badges/retired.svg" title="No longer being used or supported, recommend not using an alternative option." /></a> [![Travis build status](https://travis-ci.org/bcgov/hydrolook.svg?branch=master)](https://travis-ci.org/bcgov/hydrolook) 
+
+[![img](https://img.shields.io/badge/Lifecycle-Retired-d45500)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
+[![Travis build status](https://travis-ci.org/bcgov/hydrolook.svg?branch=master)](https://travis-ci.org/bcgov/hydrolook) 
 
 
 
@@ -35,7 +37,7 @@ install.packages("remotes")
 remotes::install_github("bcgov/hydrolook")
 ```
 Then to load the package you need to use the library command. It is advised that you setup a dedicated directory to conduct your analysis as several folders will be created as reports are generated. When you install hydrolook, several other packages will be installed as well. Each report will request other individual packages be installed. Please follow the error messages outputted by R. 
-```{r, eval = TRUE, echo=TRUE}
+```{r, eval = FALSE, echo=TRUE}
 library(hydrolook)
 ```
 
